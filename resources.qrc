@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/assistant_route" >
+        <file>/icons/icon_principal.png</file>
+    </qresource>
+</RCC>
