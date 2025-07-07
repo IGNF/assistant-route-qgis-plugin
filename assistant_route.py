@@ -911,6 +911,9 @@ class ChangeAttributRoute:
         self.dlgAProposDe = None
         self.dlg = None
 
+        # boolean pour afficher/masquer le sens de numerisation
+        self.is_affiche_sens_num = False
+
         # declaration action : menu
         self.actionAfficheSpec = None
         self.actionAttributRoute = None
@@ -1917,6 +1920,18 @@ class ChangeAttributRoute:
         # self.dlg.pushButtonValiderTransaction.setEnabled(True)
         # self.dlg.pushButtonActualiseSelection.setEnabled(True)
 
+    def afficher_sens_num(self):
+        if self.is_affiche_sens_num:
+            self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numerisation")
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "sauvegarde_style_route.qml"))
+            self.is_affiche_sens_num = False
+        else:
+            self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numerisation")
+            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__), "sauvegarde_style_route.qml"))
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "style_sens_numerisation.qml"))
+            self.is_affiche_sens_num = True
+
+        self.layer.triggerRepaint()
 
     def afficheAProposeDe(self):
         self.dlgAProposDe.show()
@@ -2060,6 +2075,9 @@ class ChangeAttributRoute:
         # bouton chemin le plus court
         self.dlg.pushButtonchepluscourt.clicked.connect(self.runchepluscourt)
 
+        # bouton afficher sens numerisation
+        self.dlg.pushButtonsensNumerisation.clicked.connect(self.afficher_sens_num)
+
         # bouton "zoom sur la sélection"
         self.dlg.pushButtonZoom.clicked.connect(self.zoom_selection)
 
@@ -2079,10 +2097,11 @@ class ChangeAttributRoute:
 
 
         # Run the dialog event loop
-        # result = self.dlg.exec_()
+        result = self.dlg.exec_()
         # # See if OK was pressed
 
-        # if result == 0:
+        if result == 0:
+            self.is_affiche_sens_num = False
 
         #     # Do something useful here - delete the line containing pass and
         #     # substitute with your code.
