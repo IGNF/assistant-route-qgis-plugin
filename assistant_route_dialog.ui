@@ -1426,7 +1426,7 @@ Empierrée</string>
   <widget class="QLabel" name="labelNbSelection">
    <property name="geometry">
     <rect>
-     <x>259</x>
+     <x>300</x>
      <y>240</y>
      <width>191</width>
      <height>20</height>
@@ -2005,7 +2005,7 @@ Empierrée</string>
   <widget class="QPushButton" name="pushButtonValiderTransaction">
    <property name="geometry">
     <rect>
-     <x>339</x>
+     <x>310</x>
      <y>210</y>
      <width>171</width>
      <height>30</height>
@@ -2071,54 +2071,6 @@ Empierrée</string>
    </property>
    <property name="flat">
     <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonUndo">
-   <property name="geometry">
-    <rect>
-     <x>310</x>
-     <y>210</y>
-     <width>30</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="cursor">
-    <cursorShape>PointingHandCursor</cursorShape>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::NoFocus</enum>
-   </property>
-   <property name="toolTip">
-    <string>Undo</string>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/icon_undo.png</normaloff>icons/icon_undo.png</iconset>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonLog">
-   <property name="geometry">
-    <rect>
-     <x>510</x>
-     <y>210</y>
-     <width>30</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="cursor">
-    <cursorShape>PointingHandCursor</cursorShape>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::NoFocus</enum>
-   </property>
-   <property name="toolTip">
-    <string>Afficher le log des modifications</string>
-   </property>
-   <property name="text">
-    <string>log</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButtonAide">
@@ -2538,7 +2490,6 @@ Empierrée</string>
   <tabstop>pushButtonAccesRestreint</tabstop>
   <tabstop>pushButtonEmpierree</tabstop>
   <tabstop>pushButtonChemin</tabstop>
-  <tabstop>pushButtonUndo</tabstop>
   <tabstop>pushButtonRte1Chaussee</tabstop>
   <tabstop>pushButtonImportance4</tabstop>
   <tabstop>pushButtonZoom</tabstop>
@@ -2548,7 +2499,6 @@ Empierrée</string>
   <tabstop>pushButtonImportance5</tabstop>
   <tabstop>pushButtonImportance2</tabstop>
   <tabstop>pushButton1voie</tabstop>
-  <tabstop>pushButtonLog</tabstop>
  </tabstops>
  <resources/>
  <connections/>

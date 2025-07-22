@@ -1,9 +1,8 @@
 LAYER_ROUTE = "troncon_de_route"
 
 TITRE_INTERFACE = "Contribution directe BDUni (ROUTE)"
-VERSION = "v1.0.0"
+VERSION = "v1.1.0"
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
-NB_MAX_ENTITE_MODIF = 40
 
 # champs
 IDENTIFIANT = "id"

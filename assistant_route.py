@@ -51,7 +51,7 @@ import os.path
 from .fonction import *
 from .cheminpluscourt import *
 from .aproposde import Aproposde
-from .tableur import *
+
 
 # recuperation de l'id de la transaction (à partir du plugin espace co)
 def getidtransaction():
@@ -914,11 +914,6 @@ class ChangeAttributRoute:
         # boolean pour afficher/masquer le sens de numerisation
         self.is_affiche_sens_num = False
 
-        # declaration action : menu
-        self.actionAfficheSpec = None
-        self.actionAttributRoute = None
-        # self.menuIGN = None
-
         self.ismodifie = False
 
         self.NatureAllIdentique = ""
@@ -948,22 +943,11 @@ class ChangeAttributRoute:
 
         self.cheminpluscourt = None
 
-        # class du tableur
-        self.tableur = None
-
-        # largeur du line edit
-        # self.largeurlineedit = None
-
-
-        # self.nbselection = None
         self.listeSelection = None
 
         # dictionnaire pour gerer les attributs de la selection
         # clé = identifiant
         self.dico_attributs_selection = {}
-
-        # dico pour gerer le undo
-        self.dicoSelectionAvantModif = {}
 
         # dico des attributs commun
         self.dico_attributs_commun = {}
@@ -974,11 +958,6 @@ class ChangeAttributRoute:
 
         # dico pour stocker les attributs modifiés
         self.dico_attributs_modifie = {}
-
-        # dico copie de dico_attributs_modifie pour gestion du undo
-        # avant que celui si soit reinitialisé apres la transaction
-        self.copie_dico_attributs_modifie = {}
-
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -993,10 +972,6 @@ class ChangeAttributRoute:
             self.translator = QTranslator()
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
-
-        # Declare instance attributes
-        # self.actions = []
-        # self.menu = self.tr(u'&assistant_route_0_2')
 
     # met en rose les attributs par defauts en fonction de la nature
     def set_attributs_defaut(self,attribut):
@@ -1550,116 +1525,6 @@ class ChangeAttributRoute:
     def colorchange(self):
         self.actualiserSelection()
 
-    def undo(self):
-        # TODO undo
-        self.layer.startEditing()
-        # pour re selection des troncons
-        selection_avant_commit = copy(self.listeSelection)
-
-        log = datetime.today().strftime('%d %B %Y %H:%M:%S') + "\n"
-
-        # si le fichier de log est ouvert on quitte. il faut le fermer manuellement
-        if not self.tableur.log_is_open():
-            return
-        # liste pour fichier excel
-        ligne_excel = []
-
-
-        for identifiant, champs in self.dicoSelectionAvantModif.items():
-            xlnature_avant = champs[1]
-            xlnature_apres = champs[1]
-            xlnbvoies_avant = champs[2]
-            xlnbvoies_apres = champs[2]
-            xllargeur_avant = champs[3]
-            xllargeur_apres = champs[3]
-            xlimportance_avant = champs[4]
-            xlimportance_apres = champs[4]
-            xlsens_avant = champs[5]
-            xlsens_apres = champs[5]
-            xlacces_avant = champs[6]
-            xlacces_apres = champs[6]
-
-            # recuperation de l'id de l'objet (requete sur la cleabs)
-            # expr = QgsExpression("{} = '{}'".format(CLEABS, champs[0]))
-            expr = QgsExpression(f"{CLEABS} = '{champs[0]}'")
-            objiterator = self.layer.getFeatures(QgsFeatureRequest(expr))
-            ident = [i.id() for i in objiterator]
-
-            log += "\t" + champs[0] + "\n"
-            for cle,attribut in self.copie_dico_attributs_modifie.items():
-
-                idchamps = self.layer.fields().indexFromName(cle)
-                # ET si la valeur est vraiment modifiée
-                if cle == NATURE and attribut != champs[1]:
-                    self.layer.changeAttributeValue(ident[0], idchamps, champs[1])
-                    log += "\t\t" + cle + " :\t" + str(attribut) + " ----> " + str(champs[1]) + "\n"
-                if cle == NB_VOIES and attribut != champs[2]:
-                    self.layer.changeAttributeValue(ident[0], idchamps, champs[2])
-                    log += "\t\t" + cle + " :\t" + str(attribut) + " ----> " + str(champs[2]) + "\n"
-                if cle == LARGEUR and attribut != champs[3]:
-                    self.layer.changeAttributeValue(ident[0], idchamps, champs[3])
-                    log += "\t\t" + cle + " :\t" + str(attribut) + " ----> " + str(champs[3]) + "\n"
-                if cle == IMPORTANCE and attribut != champs[4]:
-                    self.layer.changeAttributeValue(ident[0], idchamps, champs[4])
-                    log += "\t\t" + cle + " :\t" + str(attribut) + " ----> " + str(champs[4]) + "\n"
-                if cle == SENS and attribut != champs[5]:
-                    self.layer.changeAttributeValue(ident[0], idchamps, champs[5])
-                    log += "\t\t" + cle + " :\t" + str(attribut) + " ----> " + str(champs[5]) + "\n"
-                if cle == ACCES and attribut != champs[6]:
-                    self.layer.changeAttributeValue(ident[0], idchamps, champs[6])
-                    log += "\t\t" + cle + " :\t" + str(attribut) + " ----> " + str(champs[6]) + "\n"
-
-                if cle == NATURE:
-                    xlnature_avant = str(attribut)
-                    xlnature_apres = str(champs[1])
-                if cle == NB_VOIES:
-                    xlnbvoies_avant = str(attribut)
-                    xlnbvoies_apres = str(champs[2])
-                if cle == LARGEUR:
-                    xllargeur_avant = str(attribut)
-                    xllargeur_apres = str(champs[3])
-                if cle == IMPORTANCE:
-                    xlimportance_avant = str(attribut)
-                    xlimportance_apres = str(champs[4])
-                if cle == SENS:
-                    xlsens_avant = str(attribut)
-                    xlsens_apres = str(champs[5])
-                if cle == ACCES:
-                    xlacces_avant = str(attribut)
-                    xlacces_apres = str(champs[6])
-
-            ligne_excel.append([datetime.today().strftime('%d %B %Y %H:%M'), "En cours de dévo",
-                                champs[0],
-                                xlnature_avant,
-                                xlnature_apres,
-                                xlnbvoies_avant,
-                                xlnbvoies_apres,
-                                xllargeur_avant,
-                                xllargeur_apres,
-                                xlimportance_avant,
-                                xlimportance_apres,
-                                xlsens_avant,
-                                xlsens_apres,
-                                xlacces_avant,
-                                xlacces_apres,
-                                ])
-
-        self.tableur.adddonnees(ligne_excel)
-        self.tableur.sauvegarder()
-        log += "\n"
-
-        self.layer.commitChanges()
-        ecrire_debut_fichier(log)
-        ecrire_debut_fichier("Numéro de la transaction = " + str(getidtransaction()) + "\n")
-
-        self.actualiserSelection()
-        # re selection des troncons apres traitement, le commit vide la selection
-        self.seltroncon(selection_avant_commit)
-        self.dlg.pushButtonUndo.setEnabled(False)
-        self.dicoSelectionAvantModif.clear()
-        self.iface.actionZoomToSelected().trigger()
-        self.dicoSelectionAvantModif.clear()
-
     # test si un attribut modifié est deja dans les attributs de la selection
     def modifie_isin_selection(self,attribut):
         # TODO modifie_isin_selection
@@ -1670,15 +1535,6 @@ class ChangeAttributRoute:
                 return False
 
     def validerLaTransaction(self):
-        # TODO validerLaTransaction
-        # if self.get_nb_selection() > 40:
-        #     afficheerreur("Vous ne pouvez pas modifier plus de 40 tronçons")
-        #     return
-        if self.get_nb_selection() >= 10:
-            if not affichemessageAvertissement(
-                    f"Voulez vous validez les modification sur {self.get_nb_selection()} tronçons ?", "Validation"):
-                return
-
         # tester les valeurs possible ou interdite en fonction de la nature
         # return false si les valeurs ne sont pas valides
         if not self.test_valeur_valide():
@@ -1686,46 +1542,13 @@ class ChangeAttributRoute:
 
         # print("Attributs modifiés : ",self.dico_attributs_modifie)
 
-        # pour re selection des troncons à la fin
-        selection_avant_commit = copy(self.listeSelection)
-
-        log = datetime.today().strftime('%d %B %Y %H:%M:%S') + "\n"
-        locale.setlocale(locale.LC_TIME, 'fr_FR')
-
-        # niumero de transaction
-        print("GEROME :",getidtransaction())
-        # ecrire_debut_fichier("Numéro de la transaction = " + str(getidtransaction()) + "\n")
-
-
         self.layer.startEditing()
 
         # dico temp pour avoir le meme "format" que le dico_attributs_modifie
         dico_sel_temp = {}
 
-        # si le fichier de log est ouvert on quitte. il faut le fermer manuellement
-        if not self.tableur.log_is_open():
-            return
-        # liste pour fichier excel
-        ligne_excel = []
-
         for ident,valeur_sel in self.dico_attributs_selection.items():
-            # données pour fichier excel
-            # rempli par la selection par defaut pour avoir tous les champs dans le fichier excel
-            # y compris ceux qui ne sont pas modifiés
-            xlnature_avant = valeur_sel[1]
-            xlnature_apres = valeur_sel[1]
-            xlnbvoies_avant = valeur_sel[2]
-            xlnbvoies_apres = valeur_sel[2]
-            xllargeur_avant = valeur_sel[3]
-            xllargeur_apres = valeur_sel[3]
-            xlimportance_avant = valeur_sel[4]
-            xlimportance_apres = valeur_sel[4]
-            xlsens_avant = valeur_sel[5]
-            xlsens_apres = valeur_sel[5]
-            xlacces_avant = valeur_sel[6]
-            xlacces_apres = valeur_sel[6]
 
-            log += "\t" + valeur_sel[0] + "\n"
             dico_sel_temp[CLEABS] = valeur_sel[0]
             dico_sel_temp[NATURE] = valeur_sel[1]
             dico_sel_temp[NB_VOIES] = valeur_sel[2]
@@ -1736,96 +1559,14 @@ class ChangeAttributRoute:
 
             for champs, valeur in self.dico_attributs_modifie.items():
                 idchamps = self.layer.fields().indexFromName(champs)
-                if str(dico_sel_temp[champs]) != valeur:
-                    self.dicoSelectionAvantModif[ident] = [dico_sel_temp[CLEABS],
-                                                           dico_sel_temp[NATURE],
-                                                           dico_sel_temp[NB_VOIES],
-                                                           dico_sel_temp[LARGEUR],
-                                                           dico_sel_temp[IMPORTANCE],
-                                                           dico_sel_temp[SENS],
-                                                           dico_sel_temp[ACCES]]
 
-                    # TODO : fixer ici la valeur "NULL" pour la largeur chauss"e
-                    # if valeur == "NULL":
-                    #     afficheerreur(champs)
-                    #     afficheerreur(valeur)
-                    #     valeur = "NULL"
-                    log += "\t\t" + champs + " :\t" + str(dico_sel_temp[champs]) + " ----> " + valeur + "\n"
-                    self.layer.changeAttributeValue(ident, idchamps, valeur)
+                self.layer.changeAttributeValue(ident, idchamps, valeur)
 
-                if champs == NATURE:
-                    xlnature_avant = str(dico_sel_temp[champs])
-                    xlnature_apres = str(valeur)
-                if champs == NB_VOIES:
-                    xlnbvoies_avant = str(dico_sel_temp[champs])
-                    xlnbvoies_apres = str(valeur)
-                if champs == LARGEUR:
-                    xllargeur_avant = str(dico_sel_temp[champs])
-                    xllargeur_apres = str(valeur)
-                if champs == IMPORTANCE:
-                    xlimportance_avant = str(dico_sel_temp[champs])
-                    xlimportance_apres = str(valeur)
-                if champs == SENS:
-                    xlsens_avant = str(dico_sel_temp[champs])
-                    xlsens_apres = str(valeur)
-                if champs == ACCES:
-                    xlacces_avant = str(dico_sel_temp[champs])
-                    xlacces_apres = str(valeur)
-
-
-
-            ligne_excel.append([datetime.today().strftime('%d %B %Y %H:%M'),"En cours de dévo",
-                                valeur_sel[0],
-                                xlnature_avant,
-                                xlnature_apres,
-                                xlnbvoies_avant,
-                                xlnbvoies_apres,
-                                xllargeur_avant,
-                                xllargeur_apres,
-                                xlimportance_avant,
-                                xlimportance_apres,
-                                xlsens_avant,
-                                xlsens_apres,
-                                xlacces_avant,
-                                xlacces_apres,
-                                ])
-
-
-        self.tableur.adddonnees(ligne_excel)
-        self.tableur.sauvegarder()
-        log += "\n"
-        ecrire_debut_fichier(log)
-        self.copie_dico_attributs_modifie = copy(self.dico_attributs_modifie)
         self.dico_attributs_modifie.clear()
-
         self.ismodifie = False
-
-        self.dlg.pushButtonUndo.setEnabled(True)
-        self.layer.commitChanges()
-
         self.actualiserSelection()
-        # # re selection des troncons apres traitement, le commit vide la selection
-        self.seltroncon(selection_avant_commit)
-
-    def seltroncon(self, selectiontotal):
-        idcleabs = self.layer.fields().indexFromName("cleabs")
-        for selection in selectiontotal:
-            attr = selection.attributes()
-            # self.layer.selectByExpression("{} = '{}'".format("cleabs", attr[idcleabs]), QgsVectorLayer.AddToSelection)
-            self.layer.selectByExpression(f"{CLEABS} = '{attr[idcleabs]}'", QgsVectorLayer.AddToSelection)
-
-
 
     def actualiserSelection(self):
-        # TODO actualiserSelection
-        # message = false, pour pas afficher l'erreur de la couche si
-        # le projet a été changé sans fermer qgis (le plugin tourne tjr en arriere plan !)
-        # if not self.set_activeLayerRoute(False):
-        #     return
-
-        if len(self.dico_attributs_modifie) != 0 and self.ismodifie == True:
-            if affichemessageAvertissement("Vous n'avez pas validé les modifications","Avertissement"):
-                self.validerLaTransaction()
 
         # remettre le fond par defaut
         self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
@@ -1923,12 +1664,12 @@ class ChangeAttributRoute:
     def afficher_sens_num(self):
         if self.is_affiche_sens_num:
             self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numerisation")
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "sauvegarde_style_route.qml"))
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"))
             self.is_affiche_sens_num = False
         else:
             self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numerisation")
-            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__), "sauvegarde_style_route.qml"))
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "style_sens_numerisation.qml"))
+            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"))
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "SENS_NUM","style_sens_numerisation.qml"))
             self.is_affiche_sens_num = True
 
         self.layer.triggerRepaint()
@@ -1990,7 +1731,6 @@ class ChangeAttributRoute:
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(afficheDoc)
 
         self.cheminpluscourt = cheminpluscourt(self.iface, self.layer)
-        self.tableur = Tableur()
 
         self.dlg.mColorButton.setColor(self.iface.mapCanvas().selectionColor())
         self.dlg.mColorButton.colorChanged.connect(self.colorchange)
@@ -2062,13 +1802,6 @@ class ChangeAttributRoute:
         self.dlg.pushButtonActualiseSelection.clicked.connect(self.actualiserSelection)
         self.dlg.pushButtonActualiseSelection.setEnabled(False)
 
-        # bouton log
-        self.dlg.pushButtonLog.clicked.connect(afficherlog)
-
-        # bouton IUNDO
-        self.dlg.pushButtonUndo.setEnabled(False)
-        self.dlg.pushButtonUndo.clicked.connect(self.undo)
-
         # bouton a propos de
         self.dlg.pushButtonAide.clicked.connect(self.afficheAProposeDe)
 
@@ -2084,11 +1817,6 @@ class ChangeAttributRoute:
         # bouton valider la transaction
         self.dlg.pushButtonValiderTransaction.clicked.connect(self.validerLaTransaction)
         self.dlg.pushButtonValiderTransaction.setStyleSheet(CUSTOM_WIDGETS[4])
-
-        # test radio_box
-        # self.dlg.radioButtonChemin.setStyleSheet(CUSTOM_RADIOBOX[0])
-        # self.dlg.radioButtonSentier.setStyleSheet(CUSTOM_RADIOBOX[0])
-
 
         self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
         # show the dialog
