@@ -53,7 +53,6 @@ def affiches_spec_bdtopo():
 
 def afficheerreur(text, titre=TITRE_INTERFACE):
     msg = QMessageBox()
-    msg.setStyleSheet(FOND_DIAL)
     msg.setIcon(QMessageBox.Warning)
     msg.setWindowTitle(titre)
     msg.setStandardButtons(QMessageBox.Ok)
@@ -65,7 +64,6 @@ def afficheerreur(text, titre=TITRE_INTERFACE):
 def affichemessageAvertissement(text, titre):
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Warning)
-    msg.setStyleSheet(FOND_DIAL)
 
     msg.setWindowTitle(titre)
     msg.setText(text)

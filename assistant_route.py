@@ -1108,7 +1108,6 @@ class ChangeAttributRoute:
                 # TODO : a voir ici pb de largeur NULL , pk l'egalité n'est pas verifié ?
                 # il faut donner quoi comme valeur pour avoir "NULL" ??
                 elif largeur_selection[0] == "NULL":
-                    afficheerreur("val = NULL")
                     self.dico_btn_initial[LARGEUR] = "pushButtonLargeurVide"
                 elif largeur_selection[0] == None:
                     self.dico_btn_initial[LARGEUR] = "pushButtonLargeurVide"
