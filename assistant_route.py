@@ -27,6 +27,7 @@ from PyQt5.QtWidgets import QLineEdit
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QRegExp
 from qgis.PyQt.QtGui import QRegExpValidator
 from qgis.PyQt.QtWidgets import QAction,QPushButton
+from qgis.core import Qgis
 from qgis.utils import plugins
 
 from copy import copy
@@ -1521,6 +1522,9 @@ class ChangeAttributRoute:
         else:
             return True
 
+    def afficheMessageBar(self, message):
+        self.iface.messageBar().pushMessage("Info", message, level=Qgis.Info, duration=5)
+
     def colorchange(self):
         self.actualiserSelection()
 
@@ -1564,6 +1568,8 @@ class ChangeAttributRoute:
         self.dico_attributs_modifie.clear()
         self.ismodifie = False
         self.actualiserSelection()
+        self.afficheMessageBar(
+            f"Les modifications ont été effectués sur : {self.layer.selectedFeatureCount()} tronçon(s)")
 
     def actualiserSelection(self):
 
