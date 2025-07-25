@@ -1823,8 +1823,9 @@ class ChangeAttributRoute:
         self.dlg.pushButtonValiderTransaction.clicked.connect(self.validerLaTransaction)
         self.dlg.pushButtonValiderTransaction.setStyleSheet(CUSTOM_WIDGETS[4])
 
-        self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
         # show the dialog
+        self.dlg.setParent(self.iface.mainWindow())
+        self.dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         self.dlg.show()
 
 
