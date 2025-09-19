@@ -1885,7 +1885,7 @@ Empierrée</string>
     </font>
    </property>
    <property name="text">
-    <string> Accés vehicule léger :</string>
+    <string>Accès véhicule léger :</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
