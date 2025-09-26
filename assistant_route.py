@@ -1212,3 +1212,4 @@ class ChangeAttributRoute:
 
         if result == 0:
             self.is_affiche_sens_num = False
+            self.dlgAProposDe.close()
