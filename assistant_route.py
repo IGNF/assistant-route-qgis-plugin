@@ -1109,7 +1109,7 @@ class ChangeAttributRoute:
         self.dlg.setWindowTitle(f"{TITRE_INTERFACE}  {VERSION}")
 
         self.dlgAProposDe = Aproposde()
-        self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(afficheDoc)
 
         self.cheminpluscourt = cheminpluscourt(self.iface, self.layer)
