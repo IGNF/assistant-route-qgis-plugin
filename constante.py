@@ -1,7 +1,7 @@
 LAYER_ROUTE = "troncon_de_route"
 
 TITRE_INTERFACE = "Contribution directe BDUni (ROUTE)"
-VERSION = "v1.1.2"
+VERSION = "v1.2.0"
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
 
 # champs
@@ -14,14 +14,39 @@ LARGEUR = "largeur_de_chaussee"
 ITI_VERT = "itineraire_vert"
 ACCES = "acces_vehicule_leger"
 
+RESTRICTION_HAUTEUR = "restriction_de_hauteur"
+RESTRICTION_LARGEUR = "restriction_de_largeur"
+RESTRICTION_LONGUEUR = "restriction_de_longueur"
+RESTRICTION_POIDS_ESSIEU = "restriction_de_poids_par_essieu"
+RESTRICTION_POIDS_TOTAL = "restriction_de_poids_total"
+
+REGEX_LARGEUR = r"^\d{1,2}$"
+REGEX_RESTR_HAUTEUR = "^$|^(([1-9])(\.[0-9])([05]){0,1})$"
+REGEX_RESTR_LARGEUR = "^$|^(([1-5])(\.[0-9])([05]){0,1})$"
+REGEX_RESTR_LONGUEUR = "^$|^(([4-9]|1[0-9]|2[0-5])(\.[05](0)){0,1})$"
+REGEX_RESTR_POIDS_ESSIEU = "^$|^(1\.[05]0|([2-9]|[1][0-9])(\.[05]0){0,1})$"
+REGEX_RESTR_POIDS_TOTAL = "^$|^(1\.[05]0|([2-9]|[1-4][0-9]|5[0-7])(\.[05]0){0,1})$"
+
+LIST_BTN_NATURE = ["pushButtonRte2Chaussee", "pushButtonRte1Chaussee", "pushButtonEmpierree",
+                              "pushButtonChemin", "pushButtonSentier", "pushButtonRondpoint"]
+LIST_BTN_NBVOIES = ["pushButton3voies", "pushButton2voies", "pushButton1voie", "pushButtonVoieSansObjet"]
+LIST_BTN_IMPORTANCE = ["pushButtonImportance1", "pushButtonImportance2", "pushButtonImportance3",
+                                  "pushButtonImportance4", "pushButtonImportance5", "pushButtonImportance6"]
+LIST_BTN_SENS = ["pushButtonDoubleSens", "pushButtonSensUnique", "pushButtonInverserSens",
+                            "pushButtonSensSansObjet"
+    # , "pushButtonSensSansVal"
+                 ]
+LIST_BTN_ACCES = ["pushButtonAccesLibre", "pushButtonAccesRestreint", "pushButtonAccesImpossible"]
+LIST_LINEEDIT = ["lineEditLargeur","lineEditRestrHauteur","lineEditRestrLargeur","lineEditRestrLongueur",
+                                   "lineEditRestrPoidsEssieu","lineEditRestrPoidsTotal"]
+
+
 # attributs
 SANS_OBJET = "Sans objet"
 DOUBLE_SENS = "Double sens"
 SENS_DIRECT = "Sens direct"
 SENS_INVERSE = "Sens inverse"
 SENS_UNIQUE = "Sens unique"
-
-
 ACCES_LIBRE = "Libre"
 ACCES_IMPOSSIBLE = "Physiquement impossible"
 ACCES_RESTREINT = "Restreint aux ayants droit"
@@ -32,10 +57,7 @@ ROND_POINT = "Rond-point"
 CHEMIN = "Chemin"
 SENTIER = "Sentier"
 
-
 CLEABS = "cleabs"
-
-FOND_DIAL = "background-color:#d3ddff"
 
 # 0 : bouton clické → fond rose
 # 1 : valeur de l'objet → fond vert
