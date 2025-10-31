@@ -118,50 +118,50 @@ class ChangeAttributRoute:
     # NATURE *******************************************************
 
     # IMPORTANCE ***************************************************
-    def setImportance(self, niveau):
-        if self.get_nb_selection() == 0:
-            return
+    # def setImportance(self, niveau):
+    #     if self.get_nb_selection() == 0:
+    #         return
+    #
+    #     self.ismodifie = True
+    #     btn_name = f"pushButtonImportance{niveau}"
+    #     btn = getattr(self.dlg, btn_name)
+    #     self.initbtnclic(LIST_BTN_IMPORTANCE, btn_name)
+    #
+    #     if self.dico_attributs_commun.get(IMPORTANCE) == str(niveau):
+    #         btn.setStyleSheet(CUSTOM_WIDGETS[1])
+    #         self.dlg.pushButtonValiderTransaction.setEnabled(False)
+    #         self.dlg.pushButtonActualiseSelection.setEnabled(False)
+    #
+    #         self.dico_attributs_modifie.pop(IMPORTANCE, None)
+    #
+    #         if len(self.dico_attributs_modifie) == 0:
+    #             self.dlg.pushButtonValiderTransaction.setEnabled(False)
+    #     else:
+    #         btn.setStyleSheet(CUSTOM_WIDGETS[0])
+    #         self.dico_attributs_modifie[IMPORTANCE] = str(niveau)
+    #         self.dlg.pushButtonValiderTransaction.setEnabled(True)
+    #         self.dlg.pushButtonActualiseSelection.setEnabled(True)
+    #
+    #         if niveau == 6:
+    #             self.set_attributs_defaut(IMPORTANCE)
 
-        self.ismodifie = True
-        btn_name = f"pushButtonImportance{niveau}"
-        btn = getattr(self.dlg, btn_name)
-        self.initbtnclic(LIST_BTN_IMPORTANCE, btn_name)
-
-        if self.dico_attributs_commun.get(IMPORTANCE) == str(niveau):
-            btn.setStyleSheet(CUSTOM_WIDGETS[1])
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-
-            self.dico_attributs_modifie.pop(IMPORTANCE, None)
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            btn.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[IMPORTANCE] = str(niveau)
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-
-            if niveau == 6:
-                self.set_attributs_defaut(IMPORTANCE)
-
-    def setImportance1(self):
-        self.setImportance(1)
-
-    def setImportance2(self):
-        self.setImportance(2)
-
-    def setImportance3(self):
-        self.setImportance(3)
-
-    def setImportance4(self):
-        self.setImportance(4)
-
-    def setImportance5(self):
-        self.setImportance(5)
-
-    def setImportance6(self):
-        self.setImportance(6)
+    # def setImportance1(self):
+    #     self.setImportance(1)
+    #
+    # def setImportance2(self):
+    #     self.setImportance(2)
+    #
+    # def setImportance3(self):
+    #     self.setImportance(3)
+    #
+    # def setImportance4(self):
+    #     self.setImportance(4)
+    #
+    # def setImportance5(self):
+    #     self.setImportance(5)
+    #
+    # def setImportance6(self):
+    #     self.setImportance(6)
     # IMPORTANCE ***************************************************
 
 
@@ -379,7 +379,7 @@ class ChangeAttributRoute:
         self.listBtnTotal = LIST_BTN_NATURE.copy()
         self.listBtnTotal += LIST_BTN_NBVOIES.copy()
         # self.listBtnTotal += ["lineEditLargeur"]
-        self.listBtnTotal += LIST_BTN_IMPORTANCE.copy()
+        # self.listBtnTotal += LIST_BTN_IMPORTANCE.copy()
         self.listBtnTotal += LIST_BTN_SENS.copy()
         self.listBtnTotal += LIST_BTN_ACCES.copy()
         self.listBtnTotal += LIST_LINEEDIT.copy()
@@ -461,8 +461,8 @@ class ChangeAttributRoute:
             # on passe l'edit largeur en blanc aussi
             self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
 
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[IMPORTANCE] = "6"
+            # self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+            # self.dico_attributs_modifie[IMPORTANCE] = "6"
             self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
             self.dico_attributs_modifie[SENS] = SANS_OBJET
             self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[0])
@@ -472,14 +472,14 @@ class ChangeAttributRoute:
             self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
             self.dico_attributs_modifie[SENS] = SENS_DIRECT
 
-        if attribut == ACCES_IMPOSSIBLE:
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[IMPORTANCE] = "6"
-
-        if attribut == IMPORTANCE:
-            if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
-                self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dico_attributs_modifie[SENS] = ""
+        # if attribut == ACCES_IMPOSSIBLE:
+        #     self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+        #     self.dico_attributs_modifie[IMPORTANCE] = "6"
+        #
+        # if attribut == IMPORTANCE:
+        #     if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
+        #         self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
+        #         self.dico_attributs_modifie[SENS] = ""
 
     def set_attributs_commun_lineedit(self,nom_attr, liste_valeurs, nom_widget_lineedit):
         """
@@ -509,7 +509,7 @@ class ChangeAttributRoute:
         nature_selection = []
         nbvoies_selection = []
         largeur_selection = []
-        importance_selection = []
+        # importance_selection = []
         sens_selection = []
         acces_selection = []
         restriction_hauteur = []
@@ -524,14 +524,15 @@ class ChangeAttributRoute:
             nature_selection.append(valeur[1])
             nbvoies_selection.append(valeur[2])
             largeur_selection.append(valeur[3])
-            importance_selection.append(valeur[4])
-            sens_selection.append(valeur[5])
-            acces_selection.append(valeur[6])
-            restriction_hauteur.append(valeur[7])
-            restriction_largeur.append(valeur[8])
-            restriction_longueur.append(valeur[9])
-            restriction_poids_essieu.append(valeur[10])
-            restriction_poids_total.append(valeur[11])
+            # SI ON REMET IMPORTANCE IL FAUT RE-INDEXER
+            # importance_selection.append(valeur[4])
+            sens_selection.append(valeur[4])
+            acces_selection.append(valeur[5])
+            restriction_hauteur.append(valeur[6])
+            restriction_largeur.append(valeur[7])
+            restriction_longueur.append(valeur[8])
+            restriction_poids_essieu.append(valeur[9])
+            restriction_poids_total.append(valeur[10])
 
         # set : list des attributs UNIQUE
         # len, renvoi la taille, donc si renvoi 1 = un champ commun
@@ -583,24 +584,24 @@ class ChangeAttributRoute:
         # RESTRICTION HAUTEUR
         self.set_attributs_commun_lineedit(RESTRICTION_POIDS_TOTAL, restriction_poids_total, "lineEditRestrPoidsTotal")
 
-        # IMPORTANCE
-        if len(set(importance_selection)) != 1:
-            self.dico_attributs_commun[IMPORTANCE] = "***"
-            self.dico_btn_initial[IMPORTANCE] = "***"
-        else:
-            self.dico_attributs_commun[IMPORTANCE] = importance_selection[0]
-            if importance_selection[0] == "1":
-                self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance1"
-            if nbvoies_selection[0] == "2":
-                self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance2"
-            if importance_selection[0] == "3":
-                self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance3"
-            if importance_selection[0] == "4":
-                self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance4"
-            if importance_selection[0] == "5":
-                self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance5"
-            if importance_selection[0] == "6":
-                self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance6"
+        # # IMPORTANCE
+        # if len(set(importance_selection)) != 1:
+        #     self.dico_attributs_commun[IMPORTANCE] = "***"
+        #     self.dico_btn_initial[IMPORTANCE] = "***"
+        # else:
+        #     self.dico_attributs_commun[IMPORTANCE] = importance_selection[0]
+        #     if importance_selection[0] == "1":
+        #         self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance1"
+        #     if nbvoies_selection[0] == "2":
+        #         self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance2"
+        #     if importance_selection[0] == "3":
+        #         self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance3"
+        #     if importance_selection[0] == "4":
+        #         self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance4"
+        #     if importance_selection[0] == "5":
+        #         self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance5"
+        #     if importance_selection[0] == "6":
+        #         self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance6"
 
         # SENS
         # different ici, car sens direct OU sens inverse c'est pareil
@@ -664,7 +665,7 @@ class ChangeAttributRoute:
         idnature = self.layer.fields().indexFromName(NATURE)
         idnbvoies = self.layer.fields().indexFromName(NB_VOIES)
         idlargeur = self.layer.fields().indexFromName(LARGEUR)
-        idimportance = self.layer.fields().indexFromName(IMPORTANCE)
+        # idimportance = self.layer.fields().indexFromName(IMPORTANCE)
         idsens = self.layer.fields().indexFromName(SENS)
         idacces = self.layer.fields().indexFromName(ACCES)
         idrestrhauteur = self.layer.fields().indexFromName(RESTRICTION_HAUTEUR)
@@ -683,7 +684,7 @@ class ChangeAttributRoute:
                         attr[idnature],
                         attr[idnbvoies],
                         self.format_nombre_lineedit(attr[idlargeur]),
-                        attr[idimportance],
+                        # attr[idimportance],
                         attr[idsens],
                         attr[idacces],
                         self.format_nombre_lineedit(attr[idrestrhauteur]),
@@ -749,8 +750,8 @@ class ChangeAttributRoute:
         self.activerBoutons(True)
 
         if nature == RTE_2_CHAUSSEES:
-            self.dlg.pushButtonImportance6.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance6.setEnabled(False)
+            # self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButtonVoieSansObjet.setEnabled(False)
             self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButtonInverserSens.setEnabled(False)
@@ -782,14 +783,14 @@ class ChangeAttributRoute:
             self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.lineEditLargeur.setEnabled(False)
             self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance1.setEnabled(False)
+            # self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance2.setEnabled(False)
+            # self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance3.setEnabled(False)
+            # self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance4.setEnabled(False)
+            # self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == CHEMIN:
             self.dlg.pushButtonSensUnique.setEnabled(False)
@@ -808,14 +809,14 @@ class ChangeAttributRoute:
             self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.lineEditLargeur.setEnabled(False)
             self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance1.setEnabled(False)
+            # self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance2.setEnabled(False)
+            # self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance3.setEnabled(False)
+            # self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance4.setEnabled(False)
+            # self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == SENTIER:
             self.dlg.pushButtonDoubleSens.setEnabled(False)
@@ -832,16 +833,16 @@ class ChangeAttributRoute:
             self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButtonAccesRestreint.setEnabled(False)
             self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance5.setEnabled(False)
-            self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance1.setEnabled(False)
+            # self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance2.setEnabled(False)
+            # self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance3.setEnabled(False)
+            # self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance4.setEnabled(False)
+            # self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance5.setEnabled(False)
+            # self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButton1voie.setEnabled(False)
             self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButton2voies.setEnabled(False)
@@ -850,8 +851,8 @@ class ChangeAttributRoute:
             self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == ROND_POINT:
-            self.dlg.pushButtonImportance6.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
+            # self.dlg.pushButtonImportance6.setEnabled(False)
+            # self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButtonVoieSansObjet.setEnabled(False)
             self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
             self.dlg.pushButtonDoubleSens.setEnabled(False)
@@ -899,8 +900,8 @@ class ChangeAttributRoute:
                 str_erreur += "Veuillez renseigner une largeur de chaussée\n"
         #  TEST en plus sur RTE_2_CHAUSSEE
             # test sur l'importance
-            if self.get_valeur_from_champs(IMPORTANCE) == "6":
-                str_erreur = "Veuillez renseigner une importance différente de 6"
+            # if self.get_valeur_from_champs(IMPORTANCE) == "6":
+            #     str_erreur = "Veuillez renseigner une importance différente de 6"
 
         # TEST SUR champs :ROND_POINT
         if self.dico_attributs_modifie.get(NATURE) == ROND_POINT:
@@ -1124,7 +1125,7 @@ class ChangeAttributRoute:
         self.dlg.label_2.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_3.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_4.setStyleSheet(CUSTOM_WIDGETS[3])
-        self.dlg.label_5.setStyleSheet(CUSTOM_WIDGETS[3])
+        # self.dlg.label_5.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_6.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_7.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_9.setStyleSheet(CUSTOM_WIDGETS[3])
@@ -1147,13 +1148,13 @@ class ChangeAttributRoute:
         self.dlg.lineEditLargeur.mousePressEvent = lambda event :self.click_edit(self.dlg.lineEditLargeur,LARGEUR,event)
         self.dlg.lineEditLargeur.textChanged.connect(lambda:self.lineeditchangetext(self.dlg.lineEditLargeur,LARGEUR,REGEX_LARGEUR))
 
-        # bouton importance
-        self.dlg.pushButtonImportance1.clicked.connect(self.setImportance1)
-        self.dlg.pushButtonImportance2.clicked.connect(self.setImportance2)
-        self.dlg.pushButtonImportance3.clicked.connect(self.setImportance3)
-        self.dlg.pushButtonImportance4.clicked.connect(self.setImportance4)
-        self.dlg.pushButtonImportance5.clicked.connect(self.setImportance5)
-        self.dlg.pushButtonImportance6.clicked.connect(self.setImportance6)
+        # # bouton importance
+        # self.dlg.pushButtonImportance1.clicked.connect(self.setImportance1)
+        # self.dlg.pushButtonImportance2.clicked.connect(self.setImportance2)
+        # self.dlg.pushButtonImportance3.clicked.connect(self.setImportance3)
+        # self.dlg.pushButtonImportance4.clicked.connect(self.setImportance4)
+        # self.dlg.pushButtonImportance5.clicked.connect(self.setImportance5)
+        # self.dlg.pushButtonImportance6.clicked.connect(self.setImportance6)
 
         # bouton sens
         self.dlg.pushButtonDoubleSens.clicked.connect(self.setDoubleSens)

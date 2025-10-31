@@ -1,13 +1,13 @@
 LAYER_ROUTE = "troncon_de_route"
 
 TITRE_INTERFACE = "Contribution directe BDUni (ROUTE)"
-VERSION = "v1.2.0"
+VERSION = "v1.3.0"
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
 
 # champs
 IDENTIFIANT = "id"
 NATURE = "nature"
-IMPORTANCE = "importance"
+# IMPORTANCE = "importance"
 SENS = "sens_de_circulation"
 NB_VOIES = "nombre_de_voies"
 LARGEUR = "largeur_de_chaussee"
@@ -30,8 +30,8 @@ REGEX_RESTR_POIDS_TOTAL = "^$|^(1\.[05]0|([2-9]|[1-4][0-9]|5[0-7])(\.[05]0){0,1}
 LIST_BTN_NATURE = ["pushButtonRte2Chaussee", "pushButtonRte1Chaussee", "pushButtonEmpierree",
                               "pushButtonChemin", "pushButtonSentier", "pushButtonRondpoint"]
 LIST_BTN_NBVOIES = ["pushButton3voies", "pushButton2voies", "pushButton1voie", "pushButtonVoieSansObjet"]
-LIST_BTN_IMPORTANCE = ["pushButtonImportance1", "pushButtonImportance2", "pushButtonImportance3",
-                                  "pushButtonImportance4", "pushButtonImportance5", "pushButtonImportance6"]
+# LIST_BTN_IMPORTANCE = ["pushButtonImportance1", "pushButtonImportance2", "pushButtonImportance3",
+#                                   "pushButtonImportance4", "pushButtonImportance5", "pushButtonImportance6"]
 LIST_BTN_SENS = ["pushButtonDoubleSens", "pushButtonSensUnique", "pushButtonInverserSens",
                             "pushButtonSensSansObjet"
     # , "pushButtonSensSansVal"
