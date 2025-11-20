@@ -29,6 +29,7 @@ REGEX_RESTR_POIDS_TOTAL = "^$|^(1\.[05]0|([2-9]|[1-4][0-9]|5[0-7])(\.[05]0){0,1}
 
 LIST_BTN_NATURE = ["pushButtonRte2Chaussee", "pushButtonRte1Chaussee", "pushButtonEmpierree",
                               "pushButtonChemin", "pushButtonSentier", "pushButtonRondpoint"]
+LIST_BTN_LARGEUR = ["lineEditLargeur"]
 LIST_BTN_NBVOIES = ["pushButton3voies", "pushButton2voies", "pushButton1voie", "pushButtonVoieSansObjet"]
 LIST_BTN_IMPORTANCE = ["pushButtonImportance1", "pushButtonImportance2", "pushButtonImportance3",
                                   "pushButtonImportance4", "pushButtonImportance5", "pushButtonImportance6"]
@@ -37,7 +38,7 @@ LIST_BTN_SENS = ["pushButtonDoubleSens", "pushButtonSensUnique", "pushButtonInve
     # , "pushButtonSensSansVal"
                  ]
 LIST_BTN_ACCES = ["pushButtonAccesLibre", "pushButtonAccesRestreint", "pushButtonAccesImpossible"]
-LIST_LINEEDIT = ["lineEditLargeur","lineEditRestrHauteur","lineEditRestrLargeur","lineEditRestrLongueur",
+LIST_LINEEDIT_RESTR = ["lineEditRestrHauteur","lineEditRestrLargeur","lineEditRestrLongueur",
                                    "lineEditRestrPoidsEssieu","lineEditRestrPoidsTotal"]
 
 

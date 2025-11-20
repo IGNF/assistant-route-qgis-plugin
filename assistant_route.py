@@ -26,6 +26,7 @@ from PyQt5.QtWidgets import QLineEdit, QWidget
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QRegExp
 from qgis.PyQt.QtGui import QRegExpValidator
 from qgis.PyQt.QtWidgets import QPushButton
+from qgis._core import QgsMapLayer
 from qgis.core import Qgis
 
 # Import the code for the dialog
@@ -374,17 +375,30 @@ class ChangeAttributRoute:
         # boolean pour afficher/masquer le sens de numérisation
         self.is_affiche_sens_num = False
 
+        self.read_only_nature = False
+        self.read_only_nb_voies = False
+        self.read_only_larg_chaussee = False
         self.read_only_importance = False
+        self.read_only_sens_circu = False
+        self.read_only_acces_leger = False
+        # ici je gere toutes les restrictions ensemble, à voir si plus tard on les sépare
+        self.read_only_restriction = False
+        self.read_only_restr_hauteur = False
+        self.read_only_restr_largeur = False
+        self.read_only_restr_longueur = False
+        self.read_only_restr_poids_essieu = False
+        self.read_only_restr_poids_total = False
 
         self.ismodifie = False
 
+        self.listBtnTotal = []
         self.listBtnTotal = LIST_BTN_NATURE.copy()
         self.listBtnTotal += LIST_BTN_NBVOIES.copy()
-        # self.listBtnTotal += ["lineEditLargeur"]
+        self.listBtnTotal += ["lineEditLargeur"]
         self.listBtnTotal += LIST_BTN_IMPORTANCE.copy()
         self.listBtnTotal += LIST_BTN_SENS.copy()
         self.listBtnTotal += LIST_BTN_ACCES.copy()
-        self.listBtnTotal += LIST_LINEEDIT.copy()
+        self.listBtnTotal += LIST_LINEEDIT_RESTR.copy()
 
         # construction d'un dico (cle : btn, valeur, regex)
         # pour gerer la validation du format des données juste avant la transaction
@@ -434,6 +448,27 @@ class ChangeAttributRoute:
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
 
+    # initialise la liste de tous les boutons (des differents champs)
+    # excepté ceux qui sont en lecture seule
+    def get_bouton_total_editable(self):
+        list_btn = []
+        if not self.read_only_nature:
+            list_btn += LIST_BTN_NATURE.copy()
+        if not self.read_only_larg_chaussee:
+            list_btn += LIST_BTN_LARGEUR.copy()
+        if not self.read_only_nb_voies:
+            list_btn += LIST_BTN_NBVOIES.copy()
+        # self.listBtnTotal += ["lineEditLargeur"]
+        if not self.read_only_importance:
+            list_btn += LIST_BTN_IMPORTANCE.copy()
+        if not self.read_only_sens_circu:
+            list_btn += LIST_BTN_SENS.copy()
+        if not self.read_only_acces_leger:
+            list_btn += LIST_BTN_ACCES.copy()
+        if not self.read_only_restriction:
+            list_btn += LIST_LINEEDIT_RESTR.copy()
+        return list_btn
+
     # met en rose les attributs par défauts en fonction de la nature
     def set_attributs_defaut(self,attribut):
         # TODO set_attributs_defaut
@@ -482,6 +517,7 @@ class ChangeAttributRoute:
         #     if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
         #         self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
         #         self.dico_attributs_modifie[SENS] = ""
+
 
     def set_attributs_commun_lineedit(self,nom_attr, liste_valeurs, nom_widget_lineedit):
         """
@@ -867,21 +903,19 @@ class ChangeAttributRoute:
             self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
 
     def activerBoutons(self, affiche):
+        list_btn_editable = self.get_bouton_total_editable()
 
         widgets = self.dlg.findChildren((QPushButton, QLineEdit))
         for widget in widgets:
             name = widget.objectName()
-            # Filtrer uniquement les noms présents dans listgroupebtn
-            if name in self.listBtnTotal:
-                # désactive ou nom les btn
-                widget.setEnabled(affiche)
-
-        # pour tous les boutons importance on les désactive si le champ importance st en readonly dans le modele
-        for widget in widgets:
-            name = widget.objectName()
-            if name in LIST_BTN_IMPORTANCE:
-                widget.setEnabled(False)
-
+            if affiche:
+                if name in list_btn_editable:
+                    # désactive ou nom les btn
+                    widget.setEnabled(affiche)
+            else:
+                if name in self.listBtnTotal:
+                    # désactive ou nom les btn
+                    widget.setEnabled(affiche)
 
     # retourne la valeur du champ par defaut OU modifié
     def get_valeur_from_champs(self,nature):
@@ -1013,7 +1047,8 @@ class ChangeAttributRoute:
         if self.get_nb_selection() <1:
             self.activerBoutons(False)
             # vider tous les QLineEdit
-            for widg_str in LIST_LINEEDIT:
+            # TODO : ajouter le lineeditlargeur
+            for widg_str in LIST_LINEEDIT_RESTR:
                 widg = self.dlg.findChild(QLineEdit, widg_str)
                 widg.setText("")
         else:
@@ -1056,12 +1091,12 @@ class ChangeAttributRoute:
     def afficher_sens_num(self):
         if self.is_affiche_sens_num:
             self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numérisation")
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"))
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
             self.is_affiche_sens_num = False
         else:
             self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numérisation")
-            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"))
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "SENS_NUM","style_sens_numerisation.qml"))
+            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "SENS_NUM","style_sens_numerisation.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
             self.is_affiche_sens_num = True
 
         self.layer.triggerRepaint()
@@ -1100,7 +1135,6 @@ class ChangeAttributRoute:
         pass
 
     def run(self):
-        # TODO run
         """Run method that performs all the real work"""
         projet = QgsProject.instance()
         if len(projet.mapLayers()) <= 0:
@@ -1127,7 +1161,6 @@ class ChangeAttributRoute:
 
         # événement de changement de selection pour actualiser la selection des QCombobox
         self.iface.mapCanvas().selectionChanged.connect(self.actualiserSelection)
-        self.actualiserSelection()
 
         self.dlg.label_2.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_3.setStyleSheet(CUSTOM_WIDGETS[3])
@@ -1155,21 +1188,52 @@ class ChangeAttributRoute:
         self.dlg.lineEditLargeur.mousePressEvent = lambda event :self.click_edit(self.dlg.lineEditLargeur,LARGEUR,event)
         self.dlg.lineEditLargeur.textChanged.connect(lambda:self.lineeditchangetext(self.dlg.lineEditLargeur,LARGEUR,REGEX_LARGEUR))
 
-        # bouton importance
-        # test si le champ importance est readonly
+        # test si le champ NATURE est readonly
+        index = self.layer.fields().indexOf(NATURE)
+        form_config = self.layer.editFormConfig()
+        self.read_only_nature = form_config.readOnly(index)
+
+        # test si le champ NB VOIES est readonly
+        index = self.layer.fields().indexOf(NB_VOIES)
+        form_config = self.layer.editFormConfig()
+        self.read_only_nb_voies = form_config.readOnly(index)
+
+        # test si le champ LARGEUR est readonly
+        index = self.layer.fields().indexOf(LARGEUR)
+        form_config = self.layer.editFormConfig()
+        self.read_only_larg_chaussee = form_config.readOnly(index)
+
+        # test si le champ IMPORTANCE est readonly
         index = self.layer.fields().indexOf(IMPORTANCE)
         form_config = self.layer.editFormConfig()
         self.read_only_importance = form_config.readOnly(index)
-        if self.read_only_importance:
-            text1 = self.dlg.label_5.text()
-            text2 = "  (non modifiable)"
-            self.dlg.label_5.setText(f"{text1}< span style = 'color: red' > < b > {text2} < / b > < / span >")
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance5.setEnabled(False)
-            self.dlg.pushButtonImportance6.setEnabled(False)
+
+        # test si le champ SENS est readonly
+        index = self.layer.fields().indexOf(SENS)
+        form_config = self.layer.editFormConfig()
+        self.read_only_sens_circu = form_config.readOnly(index)
+
+        # test si le champ ACCES est readonly
+        index = self.layer.fields().indexOf(ACCES)
+        form_config = self.layer.editFormConfig()
+        self.read_only_acces_leger = form_config.readOnly(index)
+
+        # test si le champ RESTRICTIONS est readonly
+        # si au moins 1 alors tous
+        index_restr_hauteur = self.layer.fields().indexOf(RESTRICTION_HAUTEUR)
+        index_restr_largeur = self.layer.fields().indexOf(RESTRICTION_LARGEUR)
+        index_restr_longueur = self.layer.fields().indexOf(RESTRICTION_LONGUEUR)
+        index_restr_poids_essieu = self.layer.fields().indexOf(RESTRICTION_POIDS_ESSIEU)
+        index_restr_poids_total = self.layer.fields().indexOf(RESTRICTION_POIDS_TOTAL)
+        form_config = self.layer.editFormConfig()
+        self.read_only_restr_hauteur = form_config.readOnly(index_restr_hauteur)
+        self.read_only_restr_largeur = form_config.readOnly(index_restr_largeur)
+        self.read_only_restr_longueur = form_config.readOnly(index_restr_longueur)
+        self.read_only_restr_poids_essieu = form_config.readOnly(index_restr_poids_essieu)
+        self.read_only_restr_poids_total = form_config.readOnly(index_restr_poids_total)
+        if self.read_only_restr_hauteur or self.read_only_restr_largeur or self.read_only_restr_longueur or self.read_only_restr_poids_essieu or self.read_only_restr_poids_total:
+            self.read_only_restriction = form_config.readOnly(index)
+
 
         self.dlg.pushButtonImportance1.clicked.connect(self.setImportance1)
         self.dlg.pushButtonImportance2.clicked.connect(self.setImportance2)
@@ -1224,6 +1288,8 @@ class ChangeAttributRoute:
         self.dlg.pushButtonValiderTransaction.clicked.connect(self.validerLaTransaction)
         self.dlg.pushButtonValiderTransaction.setStyleSheet(CUSTOM_WIDGETS[4])
 
+        self.actualiserSelection()
+
         # show the dialog
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
@@ -1234,5 +1300,7 @@ class ChangeAttributRoute:
         # # See if OK was pressed
 
         if result == 0:
+            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
+            self.layer.triggerRepaint()
             self.is_affiche_sens_num = False
             self.dlgAProposDe.close()

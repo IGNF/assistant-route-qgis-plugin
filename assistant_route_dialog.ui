@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
-    <height>276</height>
+    <width>772</width>
+    <height>243</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,14 +24,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>760</width>
-    <height>276</height>
+    <width>772</width>
+    <height>243</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>760</width>
-    <height>276</height>
+    <width>772</width>
+    <height>243</height>
    </size>
   </property>
   <property name="baseSize">
@@ -160,7 +160,7 @@
    <property name="geometry">
     <rect>
      <x>350</x>
-     <y>250</y>
+     <y>220</y>
      <width>191</width>
      <height>20</height>
     </rect>
@@ -219,7 +219,7 @@
    <property name="geometry">
     <rect>
      <x>360</x>
-     <y>220</y>
+     <y>190</y>
      <width>171</width>
      <height>30</height>
     </rect>
@@ -290,7 +290,7 @@
    <property name="geometry">
     <rect>
      <x>590</x>
-     <y>220</y>
+     <y>190</y>
      <width>30</width>
      <height>30</height>
     </rect>
@@ -312,7 +312,7 @@
    <property name="geometry">
     <rect>
      <x>221</x>
-     <y>220</y>
+     <y>190</y>
      <width>30</width>
      <height>30</height>
     </rect>
@@ -338,7 +338,7 @@
    <property name="geometry">
     <rect>
      <x>191</x>
-     <y>220</y>
+     <y>190</y>
      <width>30</width>
      <height>30</height>
     </rect>
@@ -379,7 +379,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>220</y>
+     <y>190</y>
      <width>131</width>
      <height>30</height>
     </rect>
@@ -426,7 +426,7 @@
    <property name="geometry">
     <rect>
      <x>620</x>
-     <y>220</y>
+     <y>190</y>
      <width>61</width>
      <height>30</height>
     </rect>
@@ -457,7 +457,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>200</y>
+     <y>170</y>
      <width>751</width>
      <height>20</height>
     </rect>
@@ -476,7 +476,7 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>220</y>
+     <y>190</y>
      <width>111</width>
      <height>31</height>
     </rect>
@@ -503,8 +503,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>741</width>
-     <height>195</height>
+     <width>756</width>
+     <height>161</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0">
@@ -512,7 +512,7 @@
      <number>0</number>
     </property>
     <property name="horizontalSpacing">
-     <number>5</number>
+     <number>1</number>
     </property>
     <property name="verticalSpacing">
      <number>0</number>
