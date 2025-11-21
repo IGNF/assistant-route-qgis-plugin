@@ -475,39 +475,57 @@ class ChangeAttributRoute:
         self.initbtnclic(self.listBtnTotal)
 
         if attribut == RTE_2_CHAUSSEES:
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
-            # self.dico_attributs_modifie[SENS] = SENS_DIRECT
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = SENS_DIRECT
 
         if attribut == RTE_EMPIERREE or attribut == CHEMIN:
-            self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
+            if not self.read_only_nb_voies:
+                self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
             # self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[LARGEUR] = "NULL"
-            self.dico_attributs_modifie[IMPORTANCE] = "5"
-            # on passe l'edit largeur en blanc aussi
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
 
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = DOUBLE_SENS
+            if not self.read_only_larg_chaussee:
+                self.dico_attributs_modifie[LARGEUR] = "NULL"
+                # on passe l'edit largeur en blanc aussi
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+
+            if not self.read_only_importance:
+                self.dico_attributs_modifie[IMPORTANCE] = "5"
+                self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[0])
+
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = DOUBLE_SENS
 
         if attribut == SENTIER:
-            self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            # self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[LARGEUR] = "NULL"
-            # on passe l'edit largeur en blanc aussi
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+            if not self.read_only_nb_voies:
+                self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
+
+            if not self.read_only_larg_chaussee:
+                # self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[LARGEUR] = "NULL"
+                # on passe l'edit largeur en blanc aussi
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
 
             # self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[IMPORTANCE] = "6"
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = SANS_OBJET
-            self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[ACCES] = ACCES_IMPOSSIBLE
+            if not self.read_only_importance:
+                self.dico_attributs_modifie[IMPORTANCE] = "6"
+                self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = SANS_OBJET
+
+            if not self.read_only_acces_leger:
+                self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[ACCES] = ACCES_IMPOSSIBLE
 
         if attribut == ROND_POINT:
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = SENS_DIRECT
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = SENS_DIRECT
 
         # if attribut == ACCES_IMPOSSIBLE:
         #     self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
@@ -562,7 +580,6 @@ class ChangeAttributRoute:
             nature_selection.append(valeur[1])
             nbvoies_selection.append(valeur[2])
             largeur_selection.append(valeur[3])
-            # SI ON REMET IMPORTANCE IL FAUT RE-INDEXER
             importance_selection.append(valeur[4])
             sens_selection.append(valeur[5])
             acces_selection.append(valeur[6])
@@ -571,6 +588,7 @@ class ChangeAttributRoute:
             restriction_longueur.append(valeur[9])
             restriction_poids_essieu.append(valeur[10])
             restriction_poids_total.append(valeur[11])
+
 
         # set : list des attributs UNIQUE
         # len, renvoi la taille, donc si renvoi 1 = un champ commun
@@ -630,7 +648,7 @@ class ChangeAttributRoute:
             self.dico_attributs_commun[IMPORTANCE] = importance_selection[0]
             if importance_selection[0] == "1":
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance1"
-            if nbvoies_selection[0] == "2":
+            if importance_selection[0] == "2":
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance2"
             if importance_selection[0] == "3":
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance3"
@@ -715,7 +733,6 @@ class ChangeAttributRoute:
         self.dico_attributs_selection.clear()
         for entite in self.listeSelection:
             attr = entite.attributes()
-            # spécifique au lineedit, exemple : transforme les 4.0 en x, mais garde les 4.1
 
             ident = entite.id()
             self.dico_attributs_selection[ident] = [attr[idcleabs],
@@ -729,8 +746,7 @@ class ChangeAttributRoute:
                         self.format_nombre_lineedit(attr[idrestrlargeur]),
                         self.format_nombre_lineedit(attr[idrestrlongueur]),
                         self.format_nombre_lineedit(attr[idrestrpoidsessieu]),
-                        self.format_nombre_lineedit(attr[idrestroidstotal])
-                                                    ]
+                        self.format_nombre_lineedit(attr[idrestroidstotal])]
         return self.dico_attributs_selection
 
     def set_activeLayerRoute(self,message = True):
@@ -788,119 +804,129 @@ class ChangeAttributRoute:
         self.activerBoutons(True)
 
         if nature == RTE_2_CHAUSSEES:
-            self.dlg.pushButtonImportance6.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonVoieSansObjet.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            # self.dlg.pushButtonSensSansVal.setEnabled(False)
-            # self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonDoubleSens.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance6.setEnabled(False)
+                self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButtonVoieSansObjet.setEnabled(False)
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonDoubleSens.setEnabled(False)
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
         if nature == RTE_1_CHAUSSEE:
-            self.dlg.pushButtonVoieSansObjet.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButtonVoieSansObjet.setEnabled(False)
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == RTE_EMPIERREE:
-            self.dlg.pushButtonSensUnique.setEnabled(False)
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            # self.dlg.pushButtonSensSansVal.setEnabled(False)
-            # self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton1voie.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton2voies.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton3voies.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.lineEditLargeur.setEnabled(False)
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setEnabled(False)
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButton1voie.setEnabled(False)
+                self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton2voies.setEnabled(False)
+                self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton3voies.setEnabled(False)
+                self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_larg_chaussee:
+                self.dlg.lineEditLargeur.setEnabled(False)
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance1.setEnabled(False)
+                self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance2.setEnabled(False)
+                self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance3.setEnabled(False)
+                self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance4.setEnabled(False)
+                self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == CHEMIN:
-            self.dlg.pushButtonSensUnique.setEnabled(False)
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            # self.dlg.pushButtonSensSansVal.setEnabled(False)
-            # self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton1voie.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton2voies.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton3voies.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.lineEditLargeur.setEnabled(False)
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setEnabled(False)
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButton1voie.setEnabled(False)
+                self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton2voies.setEnabled(False)
+                self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton3voies.setEnabled(False)
+                self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_larg_chaussee:
+                self.dlg.lineEditLargeur.setEnabled(False)
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance1.setEnabled(False)
+                self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance2.setEnabled(False)
+                self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance3.setEnabled(False)
+                self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance4.setEnabled(False)
+                self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == SENTIER:
-            self.dlg.pushButtonDoubleSens.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensUnique.setEnabled(False)
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            # self.dlg.pushButtonSensSansVal.setEnabled(False)
-            # self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.lineEditLargeur.setEnabled(False)
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonAccesLibre.setEnabled(False)
-            self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonAccesRestreint.setEnabled(False)
-            self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance5.setEnabled(False)
-            self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton1voie.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton2voies.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton3voies.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonDoubleSens.setEnabled(False)
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensUnique.setEnabled(False)
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_larg_chaussee:
+                self.dlg.lineEditLargeur.setEnabled(False)
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_acces_leger:
+                self.dlg.pushButtonAccesLibre.setEnabled(False)
+                self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonAccesRestreint.setEnabled(False)
+                self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance1.setEnabled(False)
+                self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance2.setEnabled(False)
+                self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance3.setEnabled(False)
+                self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance4.setEnabled(False)
+                self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance5.setEnabled(False)
+                self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButton1voie.setEnabled(False)
+                self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton2voies.setEnabled(False)
+                self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton3voies.setEnabled(False)
+                self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == ROND_POINT:
-            self.dlg.pushButtonImportance6.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonVoieSansObjet.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonDoubleSens.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            # self.dlg.pushButtonSensSansVal.setEnabled(False)
-            # self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance6.setEnabled(False)
+                self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButtonVoieSansObjet.setEnabled(False)
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonDoubleSens.setEnabled(False)
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
 
     def activerBoutons(self, affiche):
         list_btn_editable = self.get_bouton_total_editable()
@@ -999,12 +1025,11 @@ class ChangeAttributRoute:
         self.layer.startEditing()
 
         for ident,valeur_sel in self.dico_attributs_selection.items():
-            for champs, valeur in self.dico_attributs_modifie.items():
+            for champ, valeur in self.dico_attributs_modifie.items():
                 # pour les linedit vides
                 if valeur == "" or valeur == 0:
                     valeur = "NULL"
-                idchamps = self.layer.fields().indexFromName(champs)
-
+                idchamps = self.layer.fields().indexFromName(champ)
                 self.layer.changeAttributeValue(ident, idchamps, valeur)
 
         self.dico_attributs_modifie.clear()
