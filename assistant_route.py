@@ -33,6 +33,8 @@ from qgis.core import Qgis
 from .assistant_route_dialog import ChangeAttributRouteDialog
 import os.path
 
+from .modele import *
+from .symbologie import *
 from .fonction import *
 from .cheminpluscourt import *
 from .aproposde import Aproposde
@@ -1040,6 +1042,9 @@ class ChangeAttributRoute:
             f"Les modifications ont été effectués sur : {self.layer.selectedFeatureCount()} tronçon(s)")
 
     def actualiserSelection(self):
+        layer = QgsProject.instance().mapLayersByName(LAYER_ROUTE)
+        if not layer:
+            return
         # remettre le fond par defaut
         self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
         self.dlg.lineEditRestrHauteur.setStyleSheet(CUSTOM_WIDGETS[2])
@@ -1116,15 +1121,14 @@ class ChangeAttributRoute:
     def afficher_sens_num(self):
         if self.is_affiche_sens_num:
             self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numérisation")
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
+            suppr_symb_sens_num(self.layer)
             self.is_affiche_sens_num = False
         else:
             self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numérisation")
-            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "SENS_NUM","style_sens_numerisation.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
+            add_symb_sens_num(self.layer)
             self.is_affiche_sens_num = True
-
         self.layer.triggerRepaint()
+        self.iface.mapCanvas().refresh()
 
     def afficheAProposeDe(self):
         self.dlgAProposDe.show()
@@ -1322,10 +1326,9 @@ class ChangeAttributRoute:
 
         # Run the dialog event loop
         result = self.dlg.exec_()
-        # # See if OK was pressed
 
         if result == 0:
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"),categories=QgsMapLayer.StyleCategory.Symbology| QgsMapLayer.Labeling)
+            suppr_symb_sens_num(self.layer)
             self.layer.triggerRepaint()
             self.is_affiche_sens_num = False
             self.dlgAProposDe.close()
