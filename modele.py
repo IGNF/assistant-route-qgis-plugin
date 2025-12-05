@@ -4,9 +4,9 @@ from PyQt5.QtWidgets import QDialog, QLabel, QFrame, QTableWidgetItem, QTextEdit
 from PyQt5.uic import loadUi
 from qgis.PyQt.QtCore import Qt
 
-CHAMPS_USE = ["piste_dfci","categorie_dfci","nature_detaillee_dfci","sens_de_circulation_dfci",
-              "vitesse_moyenne_dfci","aire_de_retournement_dfci","gabarit_dfci","impasse_dfci","ouvrage_d_art_limitant_dfci",
-              "pente_maximale_dfci","piste_dfci_debroussaillee","piste_dfci_fosses","tout_terrain_dfci","zone_de_croisement_dfci"]
+CHAMPS_USE = ["nature","nombre_de_voies","largeur_de_chaussee","importance",
+              "sens_de_circulation","acces_vehicule_leger","restriction_de_hauteur","restriction_de_largeur",
+              "restriction_de_longueur","restriction_de_poids_par_essieu","restriction_de_poids_total"]
 
 def test_modele(layer):
     dico_champ_readonly = {}
