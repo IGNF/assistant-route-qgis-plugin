@@ -1183,6 +1183,7 @@ class ChangeAttributRoute:
         self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(afficheDoc)
 
+
         # ******************************
         champs_manquant, champs_readonly = test_modele(self.layer)
         self.dlg.pushButton_warning.clicked.connect(lambda: config_modele(champs_manquant, champs_readonly))

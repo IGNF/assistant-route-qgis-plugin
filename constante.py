@@ -20,7 +20,7 @@ RESTRICTION_LONGUEUR = "restriction_de_longueur"
 RESTRICTION_POIDS_ESSIEU = "restriction_de_poids_par_essieu"
 RESTRICTION_POIDS_TOTAL = "restriction_de_poids_total"
 
-REGEX_LARGEUR = r"^\d{1,2}$"
+REGEX_LARGEUR  = r"^\d{1,2}(\.\d)?$"
 REGEX_RESTR_HAUTEUR = "^$|^(([1-9])(\.[0-9])([05]){0,1})$"
 REGEX_RESTR_LARGEUR = "^$|^(([1-5])(\.[0-9])([05]){0,1})$"
 REGEX_RESTR_LONGUEUR = "^$|^(([4-9]|1[0-9]|2[0-5])(\.[05](0)){0,1})$"
