@@ -8,7 +8,7 @@
                               -------------------
         begin                : 2024-10-01
         git sha              : $Format:%H$
-        copyright            : (C) 2024 by Gérôme PECHEUR
+        copyright            : (C) 2024 by Gérôme PÊCHEUR
         email                : gerome.pecheur@ign.fr
  ***************************************************************************/
 
@@ -21,58 +21,44 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt5.QtWidgets import QLineEdit
-# from PyQt5.uic.Compiler.qtproxies import QtGui
-# from matplotlib.style import library
+from PyQt5.QtGui import QValidator
+from PyQt5.QtWidgets import QLineEdit, QWidget
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QRegExp
 from qgis.PyQt.QtGui import QRegExpValidator
-from qgis.PyQt.QtWidgets import QAction,QPushButton
+from qgis.PyQt.QtWidgets import QPushButton
+from qgis._core import QgsMapLayer
 from qgis.core import Qgis
-from qgis.utils import plugins
-
-from copy import copy
-
-from qgis.core import QgsExpression
-
-
-from datetime import datetime
-import locale
-import time
-
-from collections import namedtuple
-
-# from scipy.signal import dlsim
-# from wx.lib.pubsub.py2and3 import values
-# from xlwt.ExcelFormulaLexer import false_pattern
 
 # Import the code for the dialog
 from .assistant_route_dialog import ChangeAttributRouteDialog
 import os.path
 
+from .modele import *
+from .symbologie import *
 from .fonction import *
 from .cheminpluscourt import *
 from .aproposde import Aproposde
 
-
+# TODO : obsolete
 # recuperation de l'id de la transaction (à partir du plugin espace co)
-def getidtransaction():
-    from qgis.utils import plugins
-    idtransaction = None
-    try:
-        processing_plugin = plugins[PLUGIN_ESPACE_CO]
-        print("espace co trouvé")
-        try:
-            idtransaction = processing_plugin.getlibelletransaction()
-        except AttributeError:
-            idtransaction = "Récuperation en cours de développement"
-    except KeyError:
-        print("espace co PAS trouvé")
-        pass
-
-    if idtransaction is None:
-        return "Pas de transaction vers la BDUNI (travail hors ligne)"
-    else:
-        return idtransaction
+# def getidtransaction():
+#     from qgis.utils import plugins
+#     idtransaction = None
+#     try:
+#         processing_plugin = plugins[PLUGIN_ESPACE_CO]
+#         print("espace co trouvé")
+#         try:
+#             idtransaction = processing_plugin.getlibelletransaction()
+#         except AttributeError:
+#             idtransaction = "Récuperation en cours de développement"
+#     except KeyError:
+#         print("espace co PAS trouvé")
+#         pass
+#
+#     if idtransaction is None:
+#         return "Pas de transaction vers la BDUNI (travail hors ligne)"
+#     else:
+#         return idtransaction
 
 
 class ChangeAttributRoute:
@@ -84,640 +70,156 @@ class ChangeAttributRoute:
         # zoom sur la selection
         self.iface.actionZoomToSelected().trigger()
 
-    def torte2chaussee(self):
+    # NATURE *******************************************************
+    def commut_nature(self, nature_val, button_name):
         if self.get_nb_selection() == 0:
             return
 
         self.ismodifie = True
+        current_val = self.dico_attributs_commun.get(NATURE)
 
-        if self.dico_attributs_commun[NATURE] == RTE_2_CHAUSSEES:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            # self.modifie_isin_selection(RTE_2_CHAUSSEES)
-            self.dlg.pushButtonRte2Chaussee.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NATURE]
-            except KeyError:
-                pass
+        btn = getattr(self.dlg, button_name)
+        valider_btn = self.dlg.pushButtonValiderTransaction
+        actualise_btn = self.dlg.pushButtonActualiseSelection
+
+        if current_val == nature_val:
+            valider_btn.setEnabled(False)
+            actualise_btn.setEnabled(False)
+            btn.setStyleSheet(CUSTOM_WIDGETS[1])
+            self.dico_attributs_modifie.pop(NATURE, None)
+
             if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-
+                valider_btn.setEnabled(False)
         else:
-            self.dlg.pushButtonRte2Chaussee.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[NATURE] = RTE_2_CHAUSSEES
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.activerBoutons(True)
-        self.controleDonnees(RTE_2_CHAUSSEES)
-        self.set_attributs_defaut(RTE_2_CHAUSSEES)
-        self.initbtnclic(self.listbtnNature, "pushButtonRte2Chaussee")
+            btn.setStyleSheet(CUSTOM_WIDGETS[0])
+            self.dico_attributs_modifie[NATURE] = nature_val
+            valider_btn.setEnabled(True)
+            actualise_btn.setEnabled(True)
+
+        self.controleDonnees(nature_val)
+        self.set_attributs_defaut(nature_val)
+        self.initbtnclic(LIST_BTN_NATURE, button_name)
+
+    def torte2chaussee(self):
+        self.commut_nature(RTE_2_CHAUSSEES, "pushButtonRte2Chaussee")
 
     def torte1chaussee(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonRte1Chaussee.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NATURE]
-            except KeyError:
-                pass
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-
-        else:
-            self.dlg.pushButtonRte1Chaussee.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[NATURE] = RTE_1_CHAUSSEE
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-
-        self.activerBoutons(True)
-        self.controleDonnees(RTE_1_CHAUSSEE)
-        self.set_attributs_defaut(RTE_1_CHAUSSEE)
-        self.initbtnclic(self.listbtnNature, "pushButtonRte1Chaussee")
-
-
+        self.commut_nature(RTE_1_CHAUSSEE, "pushButtonRte1Chaussee")
 
     def toempierree(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        # self.initbtnclic(self.listbtnNature, "pushButtonEmpierree")
-        if self.dico_attributs_commun[NATURE] == RTE_EMPIERREE:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonEmpierree.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NATURE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonEmpierree.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[NATURE] = RTE_EMPIERREE
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-
-        self.activerBoutons(True)
-        self.controleDonnees(RTE_EMPIERREE)
-        self.set_attributs_defaut(RTE_EMPIERREE)
-        self.initbtnclic(self.listbtnNature, "pushButtonEmpierree")
-
+        self.commut_nature(RTE_EMPIERREE, "pushButtonEmpierree")
 
     def tochemin(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        if self.dico_attributs_commun[NATURE] == CHEMIN:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonChemin.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NATURE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonChemin.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[NATURE] = CHEMIN
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-
-
-        self.activerBoutons(True)
-        self.controleDonnees(CHEMIN)
-        self.set_attributs_defaut(CHEMIN)
-        self.initbtnclic(self.listbtnNature, "pushButtonChemin")
+        self.commut_nature(CHEMIN, "pushButtonChemin")
 
     def tosentier(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        if self.dico_attributs_commun[NATURE] == SENTIER:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonSentier.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NATURE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonSentier.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[NATURE] = SENTIER
-
-        self.activerBoutons(True)
-        self.controleDonnees(SENTIER)
-        self.set_attributs_defaut(SENTIER)
-        self.initbtnclic(self.listbtnNature, "pushButtonSentier")
+        self.commut_nature(SENTIER, "pushButtonSentier")
 
     def torondpoint(self):
+        self.commut_nature(ROND_POINT, "pushButtonRondpoint")
+    # NATURE *******************************************************
+
+    # IMPORTANCE ***************************************************
+    def setImportance(self, niveau):
         if self.get_nb_selection() == 0:
             return
+
         self.ismodifie = True
-        if self.dico_attributs_commun[NATURE] == ROND_POINT:
+        btn_name = f"pushButtonImportance{niveau}"
+        btn = getattr(self.dlg, btn_name)
+        self.initbtnclic(LIST_BTN_IMPORTANCE, btn_name)
+
+        if self.dico_attributs_commun.get(IMPORTANCE) == str(niveau):
+            btn.setStyleSheet(CUSTOM_WIDGETS[1])
             self.dlg.pushButtonValiderTransaction.setEnabled(False)
             self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonRondpoint.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NATURE]
-            except KeyError:
-                pass
+
+            self.dico_attributs_modifie.pop(IMPORTANCE, None)
 
             if len(self.dico_attributs_modifie) == 0:
                 self.dlg.pushButtonValiderTransaction.setEnabled(False)
         else:
-            self.dlg.pushButtonRondpoint.setStyleSheet(CUSTOM_WIDGETS[0])
+            btn.setStyleSheet(CUSTOM_WIDGETS[0])
+            self.dico_attributs_modifie[IMPORTANCE] = str(niveau)
             self.dlg.pushButtonValiderTransaction.setEnabled(True)
             self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[NATURE] = ROND_POINT
 
-        self.activerBoutons(True)
-        self.controleDonnees(ROND_POINT)
-        self.set_attributs_defaut(ROND_POINT)
-        self.initbtnclic(self.listbtnNature, "pushButtonRondpoint")
-
-    def setvoieSansObj(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnNbVoies, "pushButtonVoieSansObjet")
-        if self.dico_attributs_commun[NB_VOIES] == SANS_OBJET:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NB_VOIES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
-
-
-
-    def set1voie(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnNbVoies, "pushButton1voie")
-        if self.dico_attributs_commun[NB_VOIES] == "1":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[1])
-
-            try:
-                del self.dico_attributs_modifie[NB_VOIES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-
-        else:
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[NB_VOIES] = "1"
-
-
-
-    def set2voies(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnNbVoies, "pushButton2voies")
-        if self.dico_attributs_commun[NB_VOIES] == "2":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NB_VOIES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[NB_VOIES] = "2"
-
-
-
-    def set3voies(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnNbVoies, "pushButton3voies")
-        if self.dico_attributs_commun[NB_VOIES] == "3":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[NB_VOIES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-
-        else:
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[NB_VOIES] = "3"
-
-
-    def setLargeur14(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnLargeur, "pushButtonLargeur14")
-
-        # mettre en rose
-        # try : gestion de la valeur "NULL" dans une clé de type nombre
-        try:
-            if 12.5 < self.dico_attributs_commun[LARGEUR]:
-                # self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                # self.dlg.pushButtonActualiseSelection.setEnabled(False)
-                # mettre en vert
-                self.dlg.pushButtonLargeur14.setStyleSheet(CUSTOM_WIDGETS[1])
-
-                try:
-                    del self.dico_attributs_modifie[LARGEUR]
-                except KeyError:
-                    pass
-
-                if len(self.dico_attributs_modifie) == 0:
-                    self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                    self.dlg.pushButtonActualiseSelection.setEnabled(False)
-
-            else:
-                self.dlg.pushButtonLargeur14.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dlg.pushButtonValiderTransaction.setEnabled(True)
-                self.dlg.pushButtonActualiseSelection.setEnabled(True)
-                self.dico_attributs_modifie[LARGEUR] = "14"
-        except TypeError:
-            self.dlg.pushButtonLargeur14.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dico_attributs_modifie[LARGEUR] = "14"
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
-        self.dlg.lineEditLargeur.setText("14")
-
-    def setLargeur10(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnLargeur, "pushButtonLargeur10")
-
-        # mettre en rose
-        # try : gestion de la valeur "NULL" dans une clé de type nombre
-        try:
-            if 9 < self.dico_attributs_commun[LARGEUR] <= 12.5:
-                # self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                # self.dlg.pushButtonActualiseSelection.setEnabled(False)
-                # mettre en vert
-                self.dlg.pushButtonLargeur10.setStyleSheet(CUSTOM_WIDGETS[1])
-
-                try:
-                    del self.dico_attributs_modifie[LARGEUR]
-                except KeyError:
-                    pass
-
-                if len(self.dico_attributs_modifie) == 0:
-                    self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                    self.dlg.pushButtonActualiseSelection.setEnabled(False)
-
-            else:
-                self.dlg.pushButtonLargeur10.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dlg.pushButtonValiderTransaction.setEnabled(True)
-                self.dlg.pushButtonActualiseSelection.setEnabled(True)
-                self.dico_attributs_modifie[LARGEUR] = "10"
-        except TypeError:
-            self.dlg.pushButtonLargeur10.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dico_attributs_modifie[LARGEUR] = "10"
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
-        self.dlg.lineEditLargeur.setText("10")
-
-    def setLargeur7(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnLargeur, "pushButtonLargeur7")
-
-        # mettre en rose
-        # try : gestion de la valeur "NULL" dans une clé de type nombre
-        try:
-            if 6.5 < self.dico_attributs_commun[LARGEUR] <= 9:
-                # self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                # self.dlg.pushButtonActualiseSelection.setEnabled(False)
-                # mettre en vert
-                self.dlg.pushButtonLargeur7.setStyleSheet(CUSTOM_WIDGETS[1])
-
-                try:
-                    del self.dico_attributs_modifie[LARGEUR]
-                except KeyError:
-                    pass
-
-                if len(self.dico_attributs_modifie) == 0:
-                    self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                    self.dlg.pushButtonActualiseSelection.setEnabled(False)
-
-            else:
-                self.dlg.pushButtonLargeur7.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dlg.pushButtonValiderTransaction.setEnabled(True)
-                self.dlg.pushButtonActualiseSelection.setEnabled(True)
-                self.dico_attributs_modifie[LARGEUR] = "7"
-        except TypeError:
-            self.dlg.pushButtonLargeur7.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dico_attributs_modifie[LARGEUR] = "7"
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
-        self.dlg.lineEditLargeur.setText("7")
-
-    def setLargeur5(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnLargeur, "pushButtonLargeur5")
-
-        # mettre en rose
-        # try : gestion de la valeur "NULL" dans une clé de type nombre
-        try:
-            if 3.5<self.dico_attributs_commun[LARGEUR] <= 6.5:
-                # self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                # self.dlg.pushButtonActualiseSelection.setEnabled(False)
-                # mettre en vert
-                self.dlg.pushButtonLargeur5.setStyleSheet(CUSTOM_WIDGETS[1])
-
-                try:
-                    del self.dico_attributs_modifie[LARGEUR]
-                except KeyError:
-                    pass
-
-                if len(self.dico_attributs_modifie) == 0:
-                    self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                    self.dlg.pushButtonActualiseSelection.setEnabled(False)
-
-            else:
-                self.dlg.pushButtonLargeur5.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dlg.pushButtonValiderTransaction.setEnabled(True)
-                self.dlg.pushButtonActualiseSelection.setEnabled(True)
-                self.dico_attributs_modifie[LARGEUR] = "5"
-        except TypeError:
-            self.dlg.pushButtonLargeur5.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dico_attributs_modifie[LARGEUR] = "5"
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
-        self.dlg.lineEditLargeur.setText("5")
-
-
-
-
-    def setLargeur3(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnLargeur, "pushButtonLargeur3")
-        # laisser en vert
-        # try : gestion de la valeur "NULL" dans une clé de type nombre
-        try:
-            if 2<self.dico_attributs_commun[LARGEUR] <= 3.5:
-                # self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                # self.dlg.pushButtonActualiseSelection.setEnabled(False)
-                self.dlg.pushButtonLargeur3.setStyleSheet(CUSTOM_WIDGETS[1])
-                try:
-                    del self.dico_attributs_modifie[LARGEUR]
-                except KeyError:
-                    pass
-
-                if len(self.dico_attributs_modifie) == 0:
-                    self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                    self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            # mettre en rose
-            else:
-                self.dlg.pushButtonLargeur3.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dlg.pushButtonValiderTransaction.setEnabled(True)
-                self.dlg.pushButtonActualiseSelection.setEnabled(True)
-                self.dico_attributs_modifie[LARGEUR] = "3"
-        except TypeError:
-            self.dlg.pushButtonLargeur3.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dico_attributs_modifie[LARGEUR] = "3"
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
-        self.dlg.lineEditLargeur.setText("3")
-
-    def setLargeurVide(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnLargeur, "pushButtonLargeurVide")
-
-        # try : gestion de la valeur "NULL" dans une clé de type nombre
-        try:
-            # if self.dico_attributs_commun[LARGEUR] == "NULL" or self.dico_attributs_commun[LARGEUR] == 0:
-            if self.dico_attributs_commun[LARGEUR] == "NULL" or self.dico_attributs_commun[LARGEUR] == 0:
-                # self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                # self.dlg.pushButtonActualiseSelection.setEnabled(False)
-                self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[1])
-
-                try:
-                    del self.dico_attributs_modifie[LARGEUR]
-                except KeyError:
-                    pass
-
-                if len(self.dico_attributs_modifie) == 0:
-                    self.dlg.pushButtonValiderTransaction.setEnabled(False)
-                    self.dlg.pushButtonActualiseSelection.setEnabled(False)
-
-            else:
-                # passe en rose
-                self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dico_attributs_modifie[LARGEUR] = "NULL"
-                self.dlg.pushButtonValiderTransaction.setEnabled(True)
-                self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        except ValueError:
-            # if modif:
-            # afficheerreur(ValueError)
-            self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[LARGEUR] = "NULL"
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
-        self.dlg.lineEditLargeur.setText("")
+            if niveau == 6:
+                self.set_attributs_defaut(IMPORTANCE)
 
     def setImportance1(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnImportance, "pushButtonImportance1")
-        if self.dico_attributs_commun[IMPORTANCE] == "1":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[IMPORTANCE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[IMPORTANCE] = "1"
-
+        self.setImportance(1)
 
     def setImportance2(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnImportance, "pushButtonImportance2")
-        if self.dico_attributs_commun[IMPORTANCE] == "2":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[IMPORTANCE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[IMPORTANCE] = "2"
-
+        self.setImportance(2)
 
     def setImportance3(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnImportance, "pushButtonImportance3")
-        if self.dico_attributs_commun[IMPORTANCE] == "3":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[IMPORTANCE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[IMPORTANCE] = "3"
-
-
+        self.setImportance(3)
 
     def setImportance4(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnImportance, "pushButtonImportance4")
-        if self.dico_attributs_commun[IMPORTANCE] == "4":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[IMPORTANCE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-
-        else:
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[IMPORTANCE] = "4"
+        self.setImportance(4)
 
     def setImportance5(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnImportance, "pushButtonImportance5")
-        if self.dico_attributs_commun[IMPORTANCE] == "5":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[IMPORTANCE]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dico_attributs_modifie[IMPORTANCE] = "5"
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
+        self.setImportance(5)
 
     def setImportance6(self):
+        self.setImportance(6)
+    # IMPORTANCE ***************************************************
+
+
+    # VOIES ********************************************************
+    def set_voie(self, valeur, nom_bouton):
         if self.get_nb_selection() == 0:
             return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnImportance, "pushButtonImportance6")
-        if self.dico_attributs_commun[IMPORTANCE] == "6":
 
+        self.ismodifie = True
+        self.initbtnclic(LIST_BTN_NBVOIES, nom_bouton)
+
+        bouton = getattr(self.dlg, nom_bouton)
+        valeur_actuelle = self.dico_attributs_commun[NB_VOIES]
+
+        if valeur_actuelle == valeur:
+            bouton.setStyleSheet(CUSTOM_WIDGETS[1])
             self.dlg.pushButtonValiderTransaction.setEnabled(False)
             self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[1])
             try:
-                del self.dico_attributs_modifie[IMPORTANCE]
+                del self.dico_attributs_modifie[NB_VOIES]
             except KeyError:
                 pass
 
-            if len(self.dico_attributs_modifie) == 0:
+            if not self.dico_attributs_modifie:
                 self.dlg.pushButtonValiderTransaction.setEnabled(False)
         else:
-            self.set_attributs_defaut(IMPORTANCE)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+            bouton.setStyleSheet(CUSTOM_WIDGETS[0])
             self.dlg.pushButtonValiderTransaction.setEnabled(True)
             self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[IMPORTANCE] = "6"
+            self.dico_attributs_modifie[NB_VOIES] = valeur
 
-    def setDoubleSens(self):
+    def setvoieSansObj(self):
+        self.set_voie(SANS_OBJET, "pushButtonVoieSansObjet")
+
+    def set1voie(self):
+        self.set_voie("1", "pushButton1voie")
+
+    def set2voies(self):
+        self.set_voie("2", "pushButton2voies")
+
+    def set3voies(self):
+        self.set_voie("3", "pushButton3voies")
+
+    # VOIES ********************************************************
+
+    # SENS *********************************************************
+    def setSens(self,valeur,nom_btn):
         if self.get_nb_selection() == 0:
             return
         self.ismodifie = True
-        self.initbtnclic(self.listbtnSens, "pushButtonDoubleSens")
-        if self.dico_attributs_commun[SENS] == DOUBLE_SENS:
+        self.initbtnclic(LIST_BTN_SENS, nom_btn)
+        bouton = getattr(self.dlg, nom_btn)
+        if self.dico_attributs_commun[SENS] == valeur:
             self.dlg.pushButtonValiderTransaction.setEnabled(False)
             self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[1])
+            bouton.setStyleSheet(CUSTOM_WIDGETS[1])
             try:
                 del self.dico_attributs_modifie[SENS]
             except KeyError:
@@ -726,16 +228,29 @@ class ChangeAttributRoute:
             if len(self.dico_attributs_modifie) == 0:
                 self.dlg.pushButtonValiderTransaction.setEnabled(False)
         else:
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[0])
+            bouton.setStyleSheet(CUSTOM_WIDGETS[0])
             self.dlg.pushButtonValiderTransaction.setEnabled(True)
             self.dlg.pushButtonActualiseSelection.setEnabled(True)
-            self.dico_attributs_modifie[SENS] = DOUBLE_SENS
+            self.dico_attributs_modifie[SENS] = valeur
+
+    def setDoubleSens(self):
+        self.setSens(DOUBLE_SENS, "pushButtonDoubleSens")
+
+    def setSensSansObjet(self):
+        self.setSens(SANS_OBJET, "pushButtonSensSansObjet")
+
+    # TODO : pas dans les specs
+    # def setSensSansValeur(self):
+    #     self.setSens("","pushButtonSensSansVal")
+
+
+
 
     def setSensUnique(self):
         if self.get_nb_selection() == 0:
             return
         self.ismodifie = True
-        self.initbtnclic(self.listbtnSens, "pushButtonSensUnique")
+        self.initbtnclic(LIST_BTN_SENS, "pushButtonSensUnique")
         # if self.dico_attributs_commun[SENS] == SENS_DIRECT or self.dico_attributs_commun[SENS] == SENS_INVERSE:
         if self.dico_attributs_commun[SENS] == SENS_UNIQUE \
                 or self.dico_attributs_commun[SENS] == SENS_DIRECT\
@@ -760,7 +275,7 @@ class ChangeAttributRoute:
         if self.get_nb_selection() == 0:
             return
         self.ismodifie = True
-        self.initbtnclic(self.listbtnSens, "pushButtonInverserSens")
+        self.initbtnclic(LIST_BTN_SENS, "pushButtonInverserSens")
         # si sens direct on change en sens inverse et inversement
         idchamps = self.layer.fields().indexFromName(SENS)
         # self.layer.startEditing()
@@ -780,119 +295,65 @@ class ChangeAttributRoute:
         self.dlg.pushButtonValiderTransaction.setEnabled(True)
         self.dlg.pushButtonActualiseSelection.setEnabled(True)
 
-    def setSensSansObjet(self):
+    # TODO pas dans les specs
+    # def setSensSansValeur(self):
+    #     if self.get_nb_selection() == 0:
+    #         return
+    #     self.ismodifie = True
+    #     self.initbtnclic(LIST_BTN_SENS, "pushButtonSensSansVal")
+    #     if self.dico_attributs_commun[SENS] == "":
+    #         self.dlg.pushButtonValiderTransaction.setEnabled(False)
+    #         self.dlg.pushButtonActualiseSelection.setEnabled(False)
+    #         self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[1])
+    #         try:
+    #             del self.dico_attributs_modifie[SENS]
+    #         except KeyError:
+    #             pass
+    #
+    #         if len(self.dico_attributs_modifie) == 0:
+    #             self.dlg.pushButtonValiderTransaction.setEnabled(False)
+    #     else:
+    #         self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
+    #         self.dico_attributs_modifie[SENS] = ""
+    #         self.dlg.pushButtonValiderTransaction.setEnabled(True)
+    #         self.dlg.pushButtonActualiseSelection.setEnabled(True)
+
+    # ACCES ************************************************************
+    def set_acces(self, valeur_cible, bouton_name):
         if self.get_nb_selection() == 0:
             return
         self.ismodifie = True
-        self.initbtnclic(self.listbtnSens, "pushButtonSensSansObjet")
-        if self.dico_attributs_commun[SENS] == SANS_OBJET:
+        self.initbtnclic(LIST_BTN_ACCES, bouton_name)
+
+        current_val = self.dico_attributs_commun.get(ACCES)
+        bouton = getattr(self.dlg, bouton_name)
+
+        if current_val == valeur_cible:
             self.dlg.pushButtonValiderTransaction.setEnabled(False)
             self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[SENS]
-            except KeyError:
-                pass
+            bouton.setStyleSheet(CUSTOM_WIDGETS[1])
+            self.dico_attributs_modifie.pop(ACCES, None)
 
             if len(self.dico_attributs_modifie) == 0:
                 self.dlg.pushButtonValiderTransaction.setEnabled(False)
         else:
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = SANS_OBJET
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
+            if valeur_cible == ACCES_IMPOSSIBLE:
+                self.set_attributs_defaut(ACCES_IMPOSSIBLE)
 
-
-    def setSensSansValeur(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnSens, "pushButtonSensSansVal")
-        if self.dico_attributs_commun[SENS] == "":
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[SENS]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = ""
+            bouton.setStyleSheet(CUSTOM_WIDGETS[0])
+            self.dico_attributs_modifie[ACCES] = valeur_cible
             self.dlg.pushButtonValiderTransaction.setEnabled(True)
             self.dlg.pushButtonActualiseSelection.setEnabled(True)
 
     def setAccesLibre(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnAcces, "pushButtonAccesLibre")
-        if self.dico_attributs_commun[ACCES] == ACCES_LIBRE:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[ACCES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[ACCES] = ACCES_LIBRE
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
+        self.set_acces(ACCES_LIBRE, "pushButtonAccesLibre")
 
     def setAccesRestreint(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnAcces, "pushButtonAccesRestreint")
-        if self.dico_attributs_commun[ACCES] == ACCES_RESTREINT:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[1])
-            try:
-                del self.dico_attributs_modifie[ACCES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[ACCES] = ACCES_RESTREINT
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
+        self.set_acces(ACCES_RESTREINT, "pushButtonAccesRestreint")
 
     def setAccesImpossible(self):
-        if self.get_nb_selection() == 0:
-            return
-        self.ismodifie = True
-        self.initbtnclic(self.listbtnAcces, "pushButtonAccesImpossible")
-        if self.dico_attributs_commun[ACCES] == ACCES_IMPOSSIBLE:
-            self.dlg.pushButtonValiderTransaction.setEnabled(False)
-            self.dlg.pushButtonActualiseSelection.setEnabled(False)
-            self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[1])
-
-            try:
-                del self.dico_attributs_modifie[ACCES]
-            except KeyError:
-                pass
-
-            if len(self.dico_attributs_modifie) == 0:
-                self.dlg.pushButtonValiderTransaction.setEnabled(False)
-        else:
-            self.set_attributs_defaut(ACCES_IMPOSSIBLE)
-            self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[ACCES] = ACCES_IMPOSSIBLE
-            self.dlg.pushButtonValiderTransaction.setEnabled(True)
-            self.dlg.pushButtonActualiseSelection.setEnabled(True)
-
+        self.set_acces(ACCES_IMPOSSIBLE, "pushButtonAccesImpossible")
+    # ACCES ************************************************************
 
 
     def get_nb_selection(self):
@@ -909,34 +370,50 @@ class ChangeAttributRoute:
         """
 
         # declaration :dialogue
+
         self.dlgAProposDe = None
         self.dlg = None
 
-        # boolean pour afficher/masquer le sens de numerisation
+        # boolean pour afficher/masquer le sens de numérisation
         self.is_affiche_sens_num = False
+
+        self.read_only_nature = False
+        self.champs_manquant = []
+        self.read_only_nb_voies = False
+        self.read_only_larg_chaussee = False
+        self.read_only_importance = False
+        self.read_only_sens_circu = False
+        self.read_only_acces_leger = False
+        # ici je gere toutes les restrictions ensemble, à voir si plus tard on les sépare
+        self.read_only_restriction = False
+        self.read_only_restr_hauteur = False
+        self.read_only_restr_largeur = False
+        self.read_only_restr_longueur = False
+        self.read_only_restr_poids_essieu = False
+        self.read_only_restr_poids_total = False
 
         self.ismodifie = False
 
-        self.NatureAllIdentique = ""
+        self.listBtnTotal = []
+        self.listBtnTotal = LIST_BTN_NATURE.copy()
+        self.listBtnTotal += LIST_BTN_NBVOIES.copy()
+        self.listBtnTotal += ["lineEditLargeur"]
+        self.listBtnTotal += LIST_BTN_IMPORTANCE.copy()
+        self.listBtnTotal += LIST_BTN_SENS.copy()
+        self.listBtnTotal += LIST_BTN_ACCES.copy()
+        self.listBtnTotal += LIST_LINEEDIT_RESTR.copy()
 
-        self.listbtnNature = ["pushButtonRte2Chaussee", "pushButtonRte1Chaussee", "pushButtonEmpierree",
-                              "pushButtonChemin", "pushButtonSentier", "pushButtonRondpoint"]
-        self.listbtnNbVoies = ["pushButton3voies", "pushButton2voies", "pushButton1voie", "pushButtonVoieSansObjet"]
-        # l'editlargeur est geré independement car aspect different
-        self.listbtnLargeur = ["pushButtonLargeur14","pushButtonLargeur10","pushButtonLargeur7","pushButtonLargeur5",
-                               "pushButtonLargeur3", "pushButtonLargeurVide"]
-        self.listbtnImportance = ["pushButtonImportance1", "pushButtonImportance2", "pushButtonImportance3",
-                                  "pushButtonImportance4", "pushButtonImportance5", "pushButtonImportance6"]
-        self.listbtnSens = ["pushButtonDoubleSens", "pushButtonSensUnique", "pushButtonInverserSens",
-                            "pushButtonSensSansObjet", "pushButtonSensSansVal"]
-        self.listbtnAcces = ["pushButtonAccesLibre", "pushButtonAccesRestreint", "pushButtonAccesImpossible"]
+        # construction d'un dico (cle : btn, valeur, regex)
+        # pour gerer la validation du format des données juste avant la transaction
+        self.dict_widg_reggex = {
+                "lineEditLargeur": REGEX_LARGEUR,
+                "lineEditRestrHauteur": REGEX_RESTR_HAUTEUR,
+                "lineEditRestrLargeur": REGEX_RESTR_LARGEUR,
+                "lineEditRestrLongueur": REGEX_RESTR_LONGUEUR,
+                "lineEditRestrPoidsEssieu": REGEX_RESTR_POIDS_ESSIEU,
+                "lineEditRestrPoidsTotal": REGEX_RESTR_POIDS_TOTAL
+            }
 
-        self.listBtnTotal = self.listbtnNature.copy()
-        self.listBtnTotal += self.listbtnNbVoies.copy()
-        self.listBtnTotal += self.listbtnLargeur.copy()
-        self.listBtnTotal += self.listbtnImportance.copy()
-        self.listBtnTotal += self.listbtnSens.copy()
-        self.listBtnTotal += self.listbtnAcces.copy()
 
         self.iface = iface
         # Save reference to the QGIS interface
@@ -946,7 +423,7 @@ class ChangeAttributRoute:
 
         self.listeSelection = None
 
-        # dictionnaire pour gerer les attributs de la selection
+        # dictionnaire pour gérer les attributs de la selection
         # clé = identifiant
         self.dico_attributs_selection = {}
 
@@ -970,60 +447,117 @@ class ChangeAttributRoute:
             'ChangeAttributRoute_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
-            self.translator = QTranslator()
+            self.translator = QTranslator(self)
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
 
-    # met en rose les attributs par defauts en fonction de la nature
+    # initialise la liste de tous les boutons (des differents champs)
+    # excepté ceux qui sont en lecture seule
+    def get_bouton_total_editable(self):
+        list_btn = []
+        if not self.read_only_nature:
+            list_btn += LIST_BTN_NATURE.copy()
+        if not self.read_only_larg_chaussee:
+            list_btn += LIST_BTN_LARGEUR.copy()
+        if not self.read_only_nb_voies:
+            list_btn += LIST_BTN_NBVOIES.copy()
+        # self.listBtnTotal += ["lineEditLargeur"]
+        if not self.read_only_importance:
+            list_btn += LIST_BTN_IMPORTANCE.copy()
+        if not self.read_only_sens_circu:
+            list_btn += LIST_BTN_SENS.copy()
+        if not self.read_only_acces_leger:
+            list_btn += LIST_BTN_ACCES.copy()
+        if not self.read_only_restriction:
+            list_btn += LIST_LINEEDIT_RESTR.copy()
+        return list_btn
+
+
+    # met en rose les attributs par défauts en fonction de la nature
     def set_attributs_defaut(self,attribut):
         # TODO set_attributs_defaut
         self.initbtnclic(self.listBtnTotal)
 
         if attribut == RTE_2_CHAUSSEES:
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
-            # self.dico_attributs_modifie[SENS] = SENS_DIRECT
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = SENS_DIRECT
 
         if attribut == RTE_EMPIERREE or attribut == CHEMIN:
-            self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[LARGEUR] = "NULL"
-            # self.dico_attributs_modifie[IMPORTANCE] = "5"
-            # on passe l'edit largeur en blanc aussi
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+            if not self.read_only_nb_voies:
+                self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
+            # self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
 
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = DOUBLE_SENS
+            if not self.read_only_larg_chaussee:
+                self.dico_attributs_modifie[LARGEUR] = "NULL"
+                # on passe l'edit largeur en blanc aussi
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+
+            if not self.read_only_importance:
+                self.dico_attributs_modifie[IMPORTANCE] = "5"
+                self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[0])
+
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = DOUBLE_SENS
 
         if attribut == SENTIER:
-            self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[LARGEUR] = "NULL"
-            # on passe l'edit largeur en blanc aussi
-            self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+            if not self.read_only_nb_voies:
+                self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
 
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[IMPORTANCE] = "6"
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = SANS_OBJET
-            self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[ACCES] = ACCES_IMPOSSIBLE
+            if not self.read_only_larg_chaussee:
+                # self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[LARGEUR] = "NULL"
+                # on passe l'edit largeur en blanc aussi
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+
+            # self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+            if not self.read_only_importance:
+                self.dico_attributs_modifie[IMPORTANCE] = "6"
+                self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = SANS_OBJET
+
+            if not self.read_only_acces_leger:
+                self.dlg.pushButtonAccesImpossible.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[ACCES] = ACCES_IMPOSSIBLE
 
         if attribut == ROND_POINT:
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[SENS] = SENS_DIRECT
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
+                self.dico_attributs_modifie[SENS] = SENS_DIRECT
 
-        if attribut == ACCES_IMPOSSIBLE:
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
-            self.dico_attributs_modifie[IMPORTANCE] = "6"
+        # if attribut == ACCES_IMPOSSIBLE:
+        #     self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
+        #     self.dico_attributs_modifie[IMPORTANCE] = "6"
+        #
+        # if attribut == IMPORTANCE:
+        #     if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
+        #         self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
+        #         self.dico_attributs_modifie[SENS] = ""
 
-        if attribut == IMPORTANCE:
-            if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
-                self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
-                self.dico_attributs_modifie[SENS] = ""
 
+    def set_attributs_commun_lineedit(self,nom_attr, liste_valeurs, nom_widget_lineedit):
+        """
+        Gère l'affichage et le stockage des valeurs communes ou multiples.
+        """
+        if len(set(liste_valeurs)) != 1:
+            valeur = "***"
+        else:
+            valeur = liste_valeurs[0]
 
+        # Stockage dans les dictionnaires
+        self.dico_attributs_commun[nom_attr] = valeur
+        self.dico_btn_initial[nom_attr] = nom_widget_lineedit if valeur != "***" else "***"
+
+        # Mise à jour du champ LineEdit
+        widget = getattr(self.dlg, nom_widget_lineedit, None)
+        if widget:
+            widget.setText(str(valeur))
 
 
     # rempli un dico avec uniquement les attributs communs
@@ -1038,8 +572,13 @@ class ChangeAttributRoute:
         importance_selection = []
         sens_selection = []
         acces_selection = []
-        # chaques listes contient tous les attributs correspondant au champ choisi
-        # avec doublons eventuel
+        restriction_hauteur = []
+        restriction_largeur = []
+        restriction_longueur = []
+        restriction_poids_essieu = []
+        restriction_poids_total = []
+        # chaque liste contient tous les attributs correspondant au champ choisi
+        # avec doublons éventuel
         for cle,valeur in self.dico_attributs_selection.items():
             cleabs_selection.append(valeur[0])
             nature_selection.append(valeur[1])
@@ -1048,6 +587,12 @@ class ChangeAttributRoute:
             importance_selection.append(valeur[4])
             sens_selection.append(valeur[5])
             acces_selection.append(valeur[6])
+            restriction_hauteur.append(valeur[7])
+            restriction_largeur.append(valeur[8])
+            restriction_longueur.append(valeur[9])
+            restriction_poids_essieu.append(valeur[10])
+            restriction_poids_total.append(valeur[11])
+
 
         # set : list des attributs UNIQUE
         # len, renvoi la taille, donc si renvoi 1 = un champ commun
@@ -1085,45 +630,19 @@ class ChangeAttributRoute:
             if nbvoies_selection[0] == SANS_OBJET:
                 self.dico_btn_initial[NB_VOIES] = "pushButtonVoieSansObjet"
 
-
+        # on traite les attributs communs pour les lineedit
         # LARGEUR
-        if len(set(largeur_selection)) != 1:
-            self.dico_attributs_commun[LARGEUR] = "***"
-            self.dico_btn_initial[LARGEUR] = "***"
-            self.dlg.lineEditLargeur.setText("")
-        else:
-            self.dico_attributs_commun[LARGEUR] = largeur_selection[0]
-            self.dlg.lineEditLargeur.setText(str(largeur_selection[0]))
-
-            try:
-                if largeur_selection[0] > 12.5:
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeur14"
-                elif 9<largeur_selection[0]<=12.5:
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeur10"
-                elif 6.5<largeur_selection[0]<=9:
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeur7"
-                elif 3.5<largeur_selection[0] <= 6.5:
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeur5"
-                elif 0<largeur_selection[0] <= 3.5:
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeur3"
-                # TODO : a voir ici pb de largeur NULL , pk l'egalité n'est pas verifié ?
-                # il faut donner quoi comme valeur pour avoir "NULL" ??
-                elif largeur_selection[0] == "NULL":
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeurVide"
-                elif largeur_selection[0] == None:
-                    self.dico_btn_initial[LARGEUR] = "pushButtonLargeurVide"
-
-
-
-
-            except TypeError:
-                self.dico_btn_initial[LARGEUR] = "pushButtonLargeurVide"
-            except ValueError:
-                self.dico_btn_initial[LARGEUR] = "pushButtonLargeurVide"
-
-            self.dlg.lineEditLargeur.setText(str(largeur_selection[0]))
-
-
+        self.set_attributs_commun_lineedit(LARGEUR, largeur_selection, "lineEditLargeur")
+        # RESTRICTION HAUTEUR
+        self.set_attributs_commun_lineedit(RESTRICTION_HAUTEUR, restriction_hauteur, "lineEditRestrHauteur")
+        # RESTRICTION HAUTEUR
+        self.set_attributs_commun_lineedit(RESTRICTION_LARGEUR, restriction_largeur, "lineEditRestrLargeur")
+        # RESTRICTION HAUTEUR
+        self.set_attributs_commun_lineedit(RESTRICTION_LONGUEUR, restriction_longueur, "lineEditRestrLongueur")
+        # RESTRICTION HAUTEUR
+        self.set_attributs_commun_lineedit(RESTRICTION_POIDS_ESSIEU, restriction_poids_essieu, "lineEditRestrPoidsEssieu")
+        # RESTRICTION HAUTEUR
+        self.set_attributs_commun_lineedit(RESTRICTION_POIDS_TOTAL, restriction_poids_total, "lineEditRestrPoidsTotal")
 
         # IMPORTANCE
         if len(set(importance_selection)) != 1:
@@ -1133,7 +652,7 @@ class ChangeAttributRoute:
             self.dico_attributs_commun[IMPORTANCE] = importance_selection[0]
             if importance_selection[0] == "1":
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance1"
-            if nbvoies_selection[0] == "2":
+            if importance_selection[0] == "2":
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance2"
             if importance_selection[0] == "3":
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance3"
@@ -1145,9 +664,9 @@ class ChangeAttributRoute:
                 self.dico_btn_initial[IMPORTANCE] = "pushButtonImportance6"
 
         # SENS
-        # different ici car sens direct OU sens inverse c'est pareil
+        # different ici, car sens direct OU sens inverse c'est pareil
         nb_sens_unique = sens_selection.count(SENS_DIRECT) + sens_selection.count(SENS_INVERSE)
-        # que des sens directe ou sens inverse
+        # que des sens directs ou sens inverse
         if self.get_nb_selection() != 0 and (nb_sens_unique == len(sens_selection)):
             self.dico_attributs_commun[SENS] = SENS_UNIQUE
             self.dico_btn_initial[SENS] = "pushButtonSensUnique"
@@ -1177,17 +696,31 @@ class ChangeAttributRoute:
             if acces_selection[0] == ACCES_IMPOSSIBLE:
                 self.dico_btn_initial[ACCES] = "pushButtonAccesImpossible"
 
-        # les attributs communs seront renseignés, les autres auront "***"
+        # les attributs communs seront renseignés, les autres auront "***".
         return self.dico_attributs_commun
 
+    # exemple : transforme 4.0 en 4, mais garde 4.5
+    # garde "NULL"
+    def format_nombre_lineedit(self,number):
+        # si "number" vaut "NULL" on garde tel quel
+        if isinstance(number, str) and number.upper() == "NULL":
+            return number
+        try:
+            num = float(number)
+        except:
+            return number
+        if int(num) == num:
+            return str(int(num))
+        else:
+            return number
+
     """**********************************
-    defini un dictionnaire d'attributs
+    définir un dictionnaire d'attributs
     clé : identifiant des entités
     valeurs : attributs
     *************************************"""
     def set_attributs_selection(self):
         # TODO set_attributs_selection
-
         idcleabs = self.layer.fields().indexFromName(CLEABS)
         idnature = self.layer.fields().indexFromName(NATURE)
         idnbvoies = self.layer.fields().indexFromName(NB_VOIES)
@@ -1195,20 +728,30 @@ class ChangeAttributRoute:
         idimportance = self.layer.fields().indexFromName(IMPORTANCE)
         idsens = self.layer.fields().indexFromName(SENS)
         idacces = self.layer.fields().indexFromName(ACCES)
+        idrestrhauteur = self.layer.fields().indexFromName(RESTRICTION_HAUTEUR)
+        idrestrlargeur = self.layer.fields().indexFromName(RESTRICTION_LARGEUR)
+        idrestrlongueur = self.layer.fields().indexFromName(RESTRICTION_LONGUEUR)
+        idrestrpoidsessieu = self.layer.fields().indexFromName(RESTRICTION_POIDS_ESSIEU)
+        idrestroidstotal = self.layer.fields().indexFromName(RESTRICTION_POIDS_TOTAL)
 
         self.dico_attributs_selection.clear()
         for entite in self.listeSelection:
             attr = entite.attributes()
+
             ident = entite.id()
             self.dico_attributs_selection[ident] = [attr[idcleabs],
                         attr[idnature],
                         attr[idnbvoies],
-                        attr[idlargeur],
+                        self.format_nombre_lineedit(attr[idlargeur]),
                         attr[idimportance],
                         attr[idsens],
-                        attr[idacces]]
+                        attr[idacces],
+                        self.format_nombre_lineedit(attr[idrestrhauteur]),
+                        self.format_nombre_lineedit(attr[idrestrlargeur]),
+                        self.format_nombre_lineedit(attr[idrestrlongueur]),
+                        self.format_nombre_lineedit(attr[idrestrpoidsessieu]),
+                        self.format_nombre_lineedit(attr[idrestroidstotal])]
         return self.dico_attributs_selection
-
 
     def set_activeLayerRoute(self,message = True):
         # TODO set_activeLayerRoute
@@ -1224,28 +767,30 @@ class ChangeAttributRoute:
             return True
 
     # initialiser les boutons en rose lorsqu'ils sont pressés
-    # passe tous les boutons d'un groupe par defaut avant de mettre en rose celui en parametre
+    # passe tous les boutons d'un groupe (listgroupebtn) par defaut avant de mettre en rose celui en parametre (btnclick)
     def initbtnclic(self, listgroupebtn, btnclick=""):
         # TODO initbtnclic
 
-        for i, btn in enumerate(self.dlg.findChildren(QPushButton)):
-            # juste les boutons de l'interface correspondant à la list de boutons passé en parametre
-            if btn.objectName() in listgroupebtn:
-                # 2 : pas de fond
-                btn.setStyleSheet(CUSTOM_WIDGETS[2])
-                # btn.setStyleSheet("font - weight: lighter")
-                if btnclick == btn.objectName():
-                    # 0 : fond rose
-                    # afficheerreur(btnclick)
+        # en rose le cliqué, tous les autres d'un même groupe par defaut.
+        widgets = self.dlg.findChildren((QPushButton, QLineEdit))
+        for widget in widgets:
+            name = widget.objectName()
+            # Filtrer uniquement les noms présents dans listgroupebtn
+            if name in listgroupebtn:
+                # Appliquer le style de base (fond neutre)
+                widget.setStyleSheet(CUSTOM_WIDGETS[2])
+                # Si c'est le widget cliqué, appliquer le style (fond rose)
+                if name == btnclick:
+                    widget.setStyleSheet(CUSTOM_WIDGETS[0])
 
-                    btn.setStyleSheet(CUSTOM_WIDGETS[0])
-
-        # garder en "vert" les boutons initiaux
+        # garder en "vert" les boutons initiaux QPushbutton
+        # et avec valeur "***" pour les QLineEdit
         for attribut in self.dico_btn_initial.values():
-            if attribut != "***":
-                btn = self.dlg.findChild(QPushButton,attribut)
-                btn.setStyleSheet(CUSTOM_WIDGETS[1])
-                # afficheerreur(btn.objectName())
+            btn = self.dlg.findChild(QWidget,attribut)
+            if btn is not None:
+                if attribut != "***":
+                    btn.setStyleSheet(CUSTOM_WIDGETS[1])
+
 
     def get_bouton_nature_actif(self):
         # TODO get_bouton_nature_actif
@@ -1255,215 +800,170 @@ class ChangeAttributRoute:
         return nature
 
 
-
+    # désactive les widgets pour les valeurs interdites
     def controleDonnees(self, nature):
         # TODO controleDonnees
 
+        # active tous les boutons initialement
+        self.activerBoutons(True)
+
         if nature == RTE_2_CHAUSSEES:
-            self.dlg.pushButtonImportance6.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonVoieSansObjet.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeurVide.setEnabled(False)
-            self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansVal.setEnabled(False)
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonDoubleSens.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance6.setEnabled(False)
+                self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButtonVoieSansObjet.setEnabled(False)
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonDoubleSens.setEnabled(False)
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
         if nature == RTE_1_CHAUSSEE:
-            self.dlg.pushButtonVoieSansObjet.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeurVide.setEnabled(False)
-            self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButtonVoieSansObjet.setEnabled(False)
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == RTE_EMPIERREE:
-            # self.setvoieSansObj(False)
-            # self.setLargeurVide(False)
-
-            self.dlg.pushButtonSensUnique.setEnabled(False)
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansVal.setEnabled(False)
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton1voie.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton2voies.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton3voies.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur14.setEnabled(False)
-            self.dlg.pushButtonLargeur14.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur10.setEnabled(False)
-            self.dlg.pushButtonLargeur10.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur7.setEnabled(False)
-            self.dlg.pushButtonLargeur7.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur5.setEnabled(False)
-            self.dlg.pushButtonLargeur5.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur3.setEnabled(False)
-            self.dlg.pushButtonLargeur3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setEnabled(False)
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButton1voie.setEnabled(False)
+                self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton2voies.setEnabled(False)
+                self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton3voies.setEnabled(False)
+                self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_larg_chaussee:
+                self.dlg.lineEditLargeur.setEnabled(False)
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance1.setEnabled(False)
+                self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance2.setEnabled(False)
+                self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance3.setEnabled(False)
+                self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance4.setEnabled(False)
+                self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == CHEMIN:
-            # self.setvoieSansObj(False)
-            # self.setLargeurVide(False)
-            # self.setDoubleSens(False)
-
-            self.dlg.pushButtonSensUnique.setEnabled(False)
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansVal.setEnabled(False)
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton1voie.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton2voies.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton3voies.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur14.setEnabled(False)
-            self.dlg.pushButtonLargeur14.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur10.setEnabled(False)
-            self.dlg.pushButtonLargeur10.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur7.setEnabled(False)
-            self.dlg.pushButtonLargeur7.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur5.setEnabled(False)
-            self.dlg.pushButtonLargeur5.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur3.setEnabled(False)
-            self.dlg.pushButtonLargeur3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonSensUnique.setEnabled(False)
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButton1voie.setEnabled(False)
+                self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton2voies.setEnabled(False)
+                self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton3voies.setEnabled(False)
+                self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_larg_chaussee:
+                self.dlg.lineEditLargeur.setEnabled(False)
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance1.setEnabled(False)
+                self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance2.setEnabled(False)
+                self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance3.setEnabled(False)
+                self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance4.setEnabled(False)
+                self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == SENTIER:
-            # self.setvoieSansObj(False)
-            # self.setLargeurVide(False)
-            # self.setImportance6(False)
-            # self.setSensSansObjet(False)
-            # self.setAccesImpossible(False)
-
-            self.dlg.pushButtonDoubleSens.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensUnique.setEnabled(False)
-            self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansVal.setEnabled(False)
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur14.setEnabled(False)
-            self.dlg.pushButtonLargeur14.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur10.setEnabled(False)
-            self.dlg.pushButtonLargeur10.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur7.setEnabled(False)
-            self.dlg.pushButtonLargeur7.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur5.setEnabled(False)
-            self.dlg.pushButtonLargeur5.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeur3.setEnabled(False)
-            self.dlg.pushButtonLargeur3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonAccesLibre.setEnabled(False)
-            self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonAccesRestreint.setEnabled(False)
-            self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance1.setEnabled(False)
-            self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance2.setEnabled(False)
-            self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance3.setEnabled(False)
-            self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance4.setEnabled(False)
-            self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonImportance5.setEnabled(False)
-            self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton1voie.setEnabled(False)
-            self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton2voies.setEnabled(False)
-            self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButton3voies.setEnabled(False)
-            self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonDoubleSens.setEnabled(False)
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensUnique.setEnabled(False)
+                self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_larg_chaussee:
+                self.dlg.lineEditLargeur.setEnabled(False)
+                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_acces_leger:
+                self.dlg.pushButtonAccesLibre.setEnabled(False)
+                self.dlg.pushButtonAccesLibre.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonAccesRestreint.setEnabled(False)
+                self.dlg.pushButtonAccesRestreint.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance1.setEnabled(False)
+                self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance2.setEnabled(False)
+                self.dlg.pushButtonImportance2.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance3.setEnabled(False)
+                self.dlg.pushButtonImportance3.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance4.setEnabled(False)
+                self.dlg.pushButtonImportance4.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonImportance5.setEnabled(False)
+                self.dlg.pushButtonImportance5.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButton1voie.setEnabled(False)
+                self.dlg.pushButton1voie.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton2voies.setEnabled(False)
+                self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButton3voies.setEnabled(False)
+                self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
 
         if nature == ROND_POINT:
-            # self.setSensUnique(False)
-
-            self.dlg.pushButtonImportance6.setEnabled(False)
-            self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonLargeurVide.setEnabled(False)
-            self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonVoieSansObjet.setEnabled(False)
-            self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonDoubleSens.setEnabled(False)
-            self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansVal.setEnabled(False)
-            self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonSensSansObjet.setEnabled(False)
-            self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
-            self.dlg.pushButtonInverserSens.setEnabled(False)
-            self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_importance:
+                self.dlg.pushButtonImportance6.setEnabled(False)
+                self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_nb_voies:
+                self.dlg.pushButtonVoieSansObjet.setEnabled(False)
+                self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+            if not self.read_only_sens_circu:
+                self.dlg.pushButtonDoubleSens.setEnabled(False)
+                self.dlg.pushButtonDoubleSens.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonSensSansObjet.setEnabled(False)
+                self.dlg.pushButtonSensSansObjet.setStyleSheet(CUSTOM_WIDGETS[6])
+                self.dlg.pushButtonInverserSens.setEnabled(False)
+                self.dlg.pushButtonInverserSens.setStyleSheet(CUSTOM_WIDGETS[6])
 
     def activerBoutons(self, affiche):
-        # nature
-        self.dlg.pushButtonRte2Chaussee.setEnabled(affiche)
-        self.dlg.pushButtonRte1Chaussee.setEnabled(affiche)
-        self.dlg.pushButtonEmpierree.setEnabled(affiche)
-        self.dlg.pushButtonChemin.setEnabled(affiche)
-        self.dlg.pushButtonSentier.setEnabled(affiche)
-        self.dlg.pushButtonRondpoint.setEnabled(affiche)
+        list_btn_editable = self.get_bouton_total_editable()
 
-        # nb voie
-        self.dlg.pushButtonVoieSansObjet.setEnabled(affiche)
-        self.dlg.pushButton1voie.setEnabled(affiche)
-        self.dlg.pushButton2voies.setEnabled(affiche)
-        self.dlg.pushButton3voies.setEnabled(affiche)
+        # champ en lecture seul
+        widgets = self.dlg.findChildren((QPushButton, QLineEdit))
+        for widget in widgets:
+            name = widget.objectName()
+            if affiche:
+                if name in list_btn_editable:
+                    # désactive ou nom les btn
+                    widget.setEnabled(affiche)
+            else:
+                if name in self.listBtnTotal:
+                    # désactive ou nom les btn
+                    widget.setEnabled(affiche)
 
-        # largeur
-        self.dlg.pushButtonLargeur14.setEnabled(affiche)
-        self.dlg.pushButtonLargeur10.setEnabled(affiche)
-        self.dlg.pushButtonLargeur7.setEnabled(affiche)
-        self.dlg.pushButtonLargeur5.setEnabled(affiche)
-        self.dlg.pushButtonLargeur3.setEnabled(affiche)
-        self.dlg.pushButtonLargeurVide.setEnabled(affiche)
-        self.dlg.lineEditLargeur.setEnabled(affiche)
+        self.disable_btn_champ_manquant()
 
-        # importance
-        self.dlg.pushButtonImportance1.setEnabled(affiche)
-        self.dlg.pushButtonImportance2.setEnabled(affiche)
-        self.dlg.pushButtonImportance3.setEnabled(affiche)
-        self.dlg.pushButtonImportance4.setEnabled(affiche)
-        self.dlg.pushButtonImportance5.setEnabled(affiche)
-        self.dlg.pushButtonImportance6.setEnabled(affiche)
+    # désactive les btn dont les champs sont manquants
+    def disable_btn_champ_manquant(self):
+        # print(self.champs_manquant)
+        widgets = self.dlg.findChildren((QPushButton, QLineEdit))
+        for widget in widgets:
+            for champ_absent in self.champs_manquant:
+                if champ_absent in DICO_CHAMP_BTN.keys():
+                    if widget.objectName() in DICO_CHAMP_BTN[champ_absent]:
+                        if type(widget) == QLineEdit:
+                            widget.setText("")
+                        widget.setEnabled(False)
 
-        # sens
-        self.dlg.pushButtonDoubleSens.setEnabled(affiche)
-        self.dlg.pushButtonSensUnique.setEnabled(affiche)
-        self.dlg.pushButtonInverserSens.setEnabled(affiche)
-        self.dlg.pushButtonSensSansObjet.setEnabled(affiche)
-        self.dlg.pushButtonSensSansVal.setEnabled(affiche)
 
-        # acces
-        self.dlg.pushButtonAccesLibre.setEnabled(affiche)
-        self.dlg.pushButtonAccesRestreint.setEnabled(affiche)
-        self.dlg.pushButtonAccesImpossible.setEnabled(affiche)
-
-    # retourne la valeur du champs par defaut OU modifié
+    # retourne la valeur du champ par defaut OU modifié
     def get_valeur_from_champs(self,nature):
         if self.dico_attributs_modifie.get(nature) is None:
             return self.dico_attributs_commun.get(nature)
@@ -1474,8 +974,6 @@ class ChangeAttributRoute:
     def test_valeur_valide(self):
 
         str_erreur = ""
-        # if self.dlg.lineEditLargeur.text() == "":
-        #     str_erreur += "La largeur ne peut pas etre vide\n"
 
         # TEST SUR champs commun a :RTE_2_CHAUSSEE et RTE_1_CHAUSSEE
         if (self.dico_attributs_modifie.get(NATURE) == RTE_2_CHAUSSEES or
@@ -1490,19 +988,9 @@ class ChangeAttributRoute:
                     self.get_valeur_from_champs(LARGEUR) == "***"):
                 str_erreur += "Veuillez renseigner une largeur de chaussée\n"
         #  TEST en plus sur RTE_2_CHAUSSEE
-            # test sur l'importance
+        #     test sur l'importance
             if self.get_valeur_from_champs(IMPORTANCE) == "6":
                 str_erreur = "Veuillez renseigner une importance différente de 6"
-
-
-        # TEST sur route empierrée
-        # if self.dico_attributs_modifie.get(NATURE) == RTE_EMPIERREE:
-        #     print("test ", self.get_valeur_from_champs(IMPORTANCE))
-        #     if (self.get_valeur_from_champs(IMPORTANCE) != "5" or
-        #             self.get_valeur_from_champs(IMPORTANCE) != "6"):
-        #         str_erreur += f"L'importance doit être egal à <span style = 'color:red'><b>5</b></span> ou <span style = 'color:red'><b>6</b></span>\n"
-
-
 
         # TEST SUR champs :ROND_POINT
         if self.dico_attributs_modifie.get(NATURE) == ROND_POINT:
@@ -1538,51 +1026,51 @@ class ChangeAttributRoute:
                 return False
 
     def validerLaTransaction(self):
-        # tester les valeurs possible ou interdite en fonction de la nature
+        # tester les valeurs possibles ou interdites en fonction de la nature
         # return false si les valeurs ne sont pas valides
         if not self.test_valeur_valide():
             return
 
-        # print("Attributs modifiés : ",self.dico_attributs_modifie)
+        # test si le format des données des lineedit sont bons
+        # for widg_str,regex in self.dict_widg_reggex.items():
+        #     widg = self.dlg.findChild(QLineEdit, widg_str)
+        #     if widg.text() == "NULL":
+        #         break
+        #     valid = self.is_valid_regex(widg, regex)
+        #     if not valid :
+        #         QMessageBox.warning(None, "Format invalide", f"Le contenu du champ '{widg.objectName()}' n'est pas valide.")
+        #         break
 
         self.layer.startEditing()
 
-        # dico temp pour avoir le meme "format" que le dico_attributs_modifie
-        dico_sel_temp = {}
-
         for ident,valeur_sel in self.dico_attributs_selection.items():
-
-            dico_sel_temp[CLEABS] = valeur_sel[0]
-            dico_sel_temp[NATURE] = valeur_sel[1]
-            dico_sel_temp[NB_VOIES] = valeur_sel[2]
-            dico_sel_temp[LARGEUR] = valeur_sel[3]
-            dico_sel_temp[IMPORTANCE] = valeur_sel[4]
-            dico_sel_temp[SENS] = valeur_sel[5]
-            dico_sel_temp[ACCES] = valeur_sel[6]
-
-            for champs, valeur in self.dico_attributs_modifie.items():
-                idchamps = self.layer.fields().indexFromName(champs)
-
+            for champ, valeur in self.dico_attributs_modifie.items():
+                # pour les linedit vides
+                if valeur == "" or valeur == 0:
+                    valeur = "NULL"
+                idchamps = self.layer.fields().indexFromName(champ)
                 self.layer.changeAttributeValue(ident, idchamps, valeur)
 
         self.dico_attributs_modifie.clear()
         self.ismodifie = False
+
         self.actualiserSelection()
         self.afficheMessageBar(
             f"Les modifications ont été effectués sur : {self.layer.selectedFeatureCount()} tronçon(s)")
 
     def actualiserSelection(self):
-
+        layer = QgsProject.instance().mapLayersByName(LAYER_ROUTE)
+        if not layer:
+            return
         # remettre le fond par defaut
         self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+        self.dlg.lineEditRestrHauteur.setStyleSheet(CUSTOM_WIDGETS[2])
 
         self.dlg.pushButtonValiderTransaction.setEnabled(False)
         self.dlg.pushButtonchepluscourt.setEnabled(False)
 
         self.listeSelection = self.layer.selectedFeatures()
-        # self.nbselection = self.layer.selectedFeatureCount()
         self.get_nb_selection()
-        # self.dlg.labelNbSelection.setText(str(self.get_nb_selection()))
         self.dlg.labelNbSelection.setText(f"Vous avez sélectionné : <span style='color: red'><b>{self.get_nb_selection()}</b></span> tronçon(s)")
 
 
@@ -1592,7 +1080,6 @@ class ChangeAttributRoute:
 
         # sauvegarde des attributs de la selection
         self.set_attributs_selection()
-
 
         # initialise un dico avec les attributs commun, à faire APRES set_attributs_selection
         self.set_attributs_commun()
@@ -1606,78 +1093,59 @@ class ChangeAttributRoute:
 
         if self.get_nb_selection() <1:
             self.activerBoutons(False)
+            # vider tous les QLineEdit
+            # TODO : ajouter le lineeditlargeur
+            for widg_str in LIST_LINEEDIT_RESTR:
+                widg = self.dlg.findChild(QLineEdit, widg_str)
+                widg.setText("")
         else:
             self.activerBoutons(True)
-
-        self.controleDonnees(self.get_bouton_nature_actif())
+            self.controleDonnees(self.get_bouton_nature_actif())
 
         if self.get_nb_selection() == 2:
             self.dlg.pushButtonchepluscourt.setEnabled(True)
 
-        if self.get_nb_selection() == 0:
-            self.dlg.lineEditLargeur.setText("")
-
         self.dlg.pushButtonActualiseSelection.setEnabled(False)
 
-    def editfocus(self):
-        # afficheerreur("perte focus")
-        pass
+    # test si le format des données est valide
+    def is_valid_regex(self,widget,regex):
+        decimal_regex = QRegExp(regex)
+        validator = QRegExpValidator(decimal_regex, widget)
+        widget.setValidator(validator)
+        # Validation du texte actuel dans le widget
+        state, _, _ = validator.validate(widget.text(), 0)
+        return state == QValidator.Acceptable
 
-    def finedition(self):
-        # afficheerreur("fin edition")
-        pass
-
-
-    def click_edit(self,event):
-        self.dlg.lineEditLargeur.clear()
-        # on garde le bouton de largeur initial en vert
-        try:
-            btn = self.dlg.findChildren(QPushButton,self.dico_btn_initial[LARGEUR])
-            btn[0].setStyleSheet(CUSTOM_WIDGETS[1])
-        except IndexError:
-            pass
-
-        # on passe tous les bouton largeur en blanc sauf celui qui est vert
-        for i,btn in enumerate(self.dlg.findChildren(QPushButton)):
-            if btn.objectName() in self.listbtnLargeur and btn.objectName() != self.dico_btn_initial[LARGEUR]:
-                btn.setStyleSheet(CUSTOM_WIDGETS[2])
-
+    def click_edit(self,widget,champs,event):
+        widget.clear()
         # on passe l'edit en rose
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[5])
-
+        widget.setStyleSheet(CUSTOM_WIDGETS[5])
         self.dlg.pushButtonValiderTransaction.setEnabled(True)
         self.dlg.pushButtonActualiseSelection.setEnabled(True)
 
-
-
-    def textchangelargeur(self):
+    def lineeditchangetext(self,widget,champs,regex):
         # Définir le format du nombre décimal avec un point comme séparateur
-        decimal_regex = QRegExp(r"^\d*\.?\d{1}$")  # Autorise un point décimal, pas de virgule
-        validator = QRegExpValidator(decimal_regex, self.dlg.lineEditLargeur)
-        self.dlg.lineEditLargeur.setValidator(validator)
+        # decimal_regex = QRegExp(r"^\d*\.?\d{1}$")  # Autorise un point décimal, pas de virgule
+        # decimal_regex = QRegExp(regex)
+        # validator = QRegExpValidator(decimal_regex, widget)
+        # widget.setValidator(validator)
+        self.is_valid_regex(widget,regex)
 
         if self.get_nb_selection() == 0:
             return
-
-        # self.largeurlineedit = self.dlg.lineEditLargeur.text()
-        self.dico_attributs_modifie[LARGEUR] = self.dlg.lineEditLargeur.text()
-
-        # if self.dlg.lineEditLargeur.text() != "":
-        # self.dlg.pushButtonValiderTransaction.setEnabled(True)
-        # self.dlg.pushButtonActualiseSelection.setEnabled(True)
+        self.dico_attributs_modifie[champs] = widget.text()
 
     def afficher_sens_num(self):
         if self.is_affiche_sens_num:
-            self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numerisation")
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"))
+            self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numérisation")
+            suppr_symb_sens_num(self.layer)
             self.is_affiche_sens_num = False
         else:
-            self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numerisation")
-            self.layer.saveNamedStyle(os.path.join(os.path.dirname(__file__),"SENS_NUM", "sauvegarde_style_route.qml"))
-            self.layer.loadNamedStyle(os.path.join(os.path.dirname(__file__), "SENS_NUM","style_sens_numerisation.qml"))
+            self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numérisation")
+            add_symb_sens_num(self.layer)
             self.is_affiche_sens_num = True
-
         self.layer.triggerRepaint()
+        self.iface.mapCanvas().refresh()
 
     def afficheAProposeDe(self):
         self.dlgAProposDe.show()
@@ -1713,7 +1181,6 @@ class ChangeAttributRoute:
         pass
 
     def run(self):
-        # TODO run
         """Run method that performs all the real work"""
         projet = QgsProject.instance()
         if len(projet.mapLayers()) <= 0:
@@ -1728,21 +1195,27 @@ class ChangeAttributRoute:
 
         self.dlg = ChangeAttributRouteDialog()
         self.dlg.setWindowTitle(f"{TITRE_INTERFACE}  {VERSION}")
-        # self.dlg.setStyleSheet(FOND_DIAL)
 
         self.dlgAProposDe = Aproposde()
-        # self.dlgAProposDe.setStyleSheet(FOND_DIAL)
-        self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(afficheDoc)
+
+
+        # ******************************
+        self.champs_manquant, champs_readonly = test_modele(self.layer)
+        self.dlg.pushButton_warning.clicked.connect(lambda: config_modele(self.champs_manquant, champs_readonly))
+        # self.dlg.pushButton_warning.hide()
+        if len(self.champs_manquant) == 0:
+            self.dlg.pushButton_warning.setStyleSheet("qproperty-icon: none;")
+        # ******************************
 
         self.cheminpluscourt = cheminpluscourt(self.iface, self.layer)
 
         self.dlg.mColorButton.setColor(self.iface.mapCanvas().selectionColor())
         self.dlg.mColorButton.colorChanged.connect(self.colorchange)
 
-        # evenement de changement de selection pour actualiser la selection des Qcombobox
+        # événement de changement de selection pour actualiser la selection des QCombobox
         self.iface.mapCanvas().selectionChanged.connect(self.actualiserSelection)
-        self.actualiserSelection()
 
         self.dlg.label_2.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_3.setStyleSheet(CUSTOM_WIDGETS[3])
@@ -1750,6 +1223,7 @@ class ChangeAttributRoute:
         self.dlg.label_5.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_6.setStyleSheet(CUSTOM_WIDGETS[3])
         self.dlg.label_7.setStyleSheet(CUSTOM_WIDGETS[3])
+        self.dlg.label_9.setStyleSheet(CUSTOM_WIDGETS[3])
 
         # Bouton change NATURE
         self.dlg.pushButtonRte2Chaussee.clicked.connect(self.torte2chaussee)
@@ -1765,23 +1239,57 @@ class ChangeAttributRoute:
         self.dlg.pushButton2voies.clicked.connect(self.set2voies)
         self.dlg.pushButton3voies.clicked.connect(self.set3voies)
 
-        # Bouton change largeur
-        self.dlg.pushButtonLargeur14.clicked.connect(self.setLargeur14)
-        self.dlg.pushButtonLargeur10.clicked.connect(self.setLargeur10)
-        self.dlg.pushButtonLargeur7.clicked.connect(self.setLargeur7)
-        self.dlg.pushButtonLargeur5.clicked.connect(self.setLargeur5)
-        self.dlg.pushButtonLargeur3.clicked.connect(self.setLargeur3)
-        self.dlg.pushButtonLargeurVide.clicked.connect(self.setLargeurVide)
-        # evenement lineeditlargeur
-        self.dlg.lineEditLargeur.mousePressEvent = self.click_edit
-        self.dlg.lineEditLargeur.editingFinished.connect(self.editfocus)
-        # self.dlg.lineEditLargeur.textEdited.connect(self.lineeditlargeur)
-        self.dlg.lineEditLargeur.textChanged.connect(self.textchangelargeur)
-        self.dlg.lineEditLargeur.editingFinished.connect(self.finedition)
-        self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+        # événement lineeditlargeur
+        self.dlg.lineEditLargeur.mousePressEvent = lambda event :self.click_edit(self.dlg.lineEditLargeur,LARGEUR,event)
+        self.dlg.lineEditLargeur.textChanged.connect(lambda:self.lineeditchangetext(self.dlg.lineEditLargeur,LARGEUR,REGEX_LARGEUR))
+
+        # test si le champ NATURE est readonly
+        index = self.layer.fields().indexOf(NATURE)
+        form_config = self.layer.editFormConfig()
+        self.read_only_nature = form_config.readOnly(index)
+
+        # test si le champ NB VOIES est readonly
+        index = self.layer.fields().indexOf(NB_VOIES)
+        form_config = self.layer.editFormConfig()
+        self.read_only_nb_voies = form_config.readOnly(index)
+
+        # test si le champ LARGEUR est readonly
+        index = self.layer.fields().indexOf(LARGEUR)
+        form_config = self.layer.editFormConfig()
+        self.read_only_larg_chaussee = form_config.readOnly(index)
+
+        # test si le champ IMPORTANCE est readonly
+        index = self.layer.fields().indexOf(IMPORTANCE)
+        form_config = self.layer.editFormConfig()
+        self.read_only_importance = form_config.readOnly(index)
+
+        # test si le champ SENS est readonly
+        index = self.layer.fields().indexOf(SENS)
+        form_config = self.layer.editFormConfig()
+        self.read_only_sens_circu = form_config.readOnly(index)
+
+        # test si le champ ACCES est readonly
+        index = self.layer.fields().indexOf(ACCES)
+        form_config = self.layer.editFormConfig()
+        self.read_only_acces_leger = form_config.readOnly(index)
+
+        # test si le champ RESTRICTIONS est readonly
+        # si au moins 1 alors tous
+        index_restr_hauteur = self.layer.fields().indexOf(RESTRICTION_HAUTEUR)
+        index_restr_largeur = self.layer.fields().indexOf(RESTRICTION_LARGEUR)
+        index_restr_longueur = self.layer.fields().indexOf(RESTRICTION_LONGUEUR)
+        index_restr_poids_essieu = self.layer.fields().indexOf(RESTRICTION_POIDS_ESSIEU)
+        index_restr_poids_total = self.layer.fields().indexOf(RESTRICTION_POIDS_TOTAL)
+        form_config = self.layer.editFormConfig()
+        self.read_only_restr_hauteur = form_config.readOnly(index_restr_hauteur)
+        self.read_only_restr_largeur = form_config.readOnly(index_restr_largeur)
+        self.read_only_restr_longueur = form_config.readOnly(index_restr_longueur)
+        self.read_only_restr_poids_essieu = form_config.readOnly(index_restr_poids_essieu)
+        self.read_only_restr_poids_total = form_config.readOnly(index_restr_poids_total)
+        if self.read_only_restr_hauteur or self.read_only_restr_largeur or self.read_only_restr_longueur or self.read_only_restr_poids_essieu or self.read_only_restr_poids_total:
+            self.read_only_restriction = form_config.readOnly(index)
 
 
-        # bouton importance
         self.dlg.pushButtonImportance1.clicked.connect(self.setImportance1)
         self.dlg.pushButtonImportance2.clicked.connect(self.setImportance2)
         self.dlg.pushButtonImportance3.clicked.connect(self.setImportance3)
@@ -1794,16 +1302,28 @@ class ChangeAttributRoute:
         self.dlg.pushButtonSensUnique.clicked.connect(self.setSensUnique)
         self.dlg.pushButtonInverserSens.clicked.connect(self.setInverserSens)
         self.dlg.pushButtonSensSansObjet.clicked.connect(self.setSensSansObjet)
-        self.dlg.pushButtonSensSansVal.clicked.connect(self.setSensSansValeur)
+        # TODO : pas dans les specs
+        # self.dlg.pushButtonSensSansVal.clicked.connect(self.setSensSansValeur)
 
         # acces
         self.dlg.pushButtonAccesLibre.clicked.connect(self.setAccesLibre)
         self.dlg.pushButtonAccesRestreint.clicked.connect(self.setAccesRestreint)
         self.dlg.pushButtonAccesImpossible.clicked.connect(self.setAccesImpossible)
 
+        # restrictions
+        restrictions = [
+            (self.dlg.lineEditRestrHauteur,RESTRICTION_HAUTEUR,REGEX_RESTR_HAUTEUR),
+            (self.dlg.lineEditRestrLargeur, RESTRICTION_LARGEUR,REGEX_RESTR_LARGEUR),
+            (self.dlg.lineEditRestrLongueur, RESTRICTION_LONGUEUR,REGEX_RESTR_LONGUEUR),
+            (self.dlg.lineEditRestrPoidsEssieu, RESTRICTION_POIDS_ESSIEU,REGEX_RESTR_POIDS_ESSIEU),
+            (self.dlg.lineEditRestrPoidsTotal, RESTRICTION_POIDS_TOTAL,REGEX_RESTR_POIDS_TOTAL),
+        ]
+        for widget, constante,regex in restrictions:
+            widget.mousePressEvent = lambda event, w=widget, c=constante: self.click_edit(w, c, event)
+            widget.textChanged.connect(lambda _, w=widget, c=constante,r = regex: self.lineeditchangetext(w, c,r))
 
         # bouton d'actualisation de la selection
-        # pour retrouver l'etat initial apres modif mais avant transaction
+        # pour retrouver l'état initial apres modif, mais avant transaction
         self.dlg.pushButtonActualiseSelection.clicked.connect(self.actualiserSelection)
         self.dlg.pushButtonActualiseSelection.setEnabled(False)
 
@@ -1813,7 +1333,7 @@ class ChangeAttributRoute:
         # bouton chemin le plus court
         self.dlg.pushButtonchepluscourt.clicked.connect(self.runchepluscourt)
 
-        # bouton afficher sens numerisation
+        # bouton afficher sens numérisation
         self.dlg.pushButtonsensNumerisation.clicked.connect(self.afficher_sens_num)
 
         # bouton "zoom sur la sélection"
@@ -1823,20 +1343,18 @@ class ChangeAttributRoute:
         self.dlg.pushButtonValiderTransaction.clicked.connect(self.validerLaTransaction)
         self.dlg.pushButtonValiderTransaction.setStyleSheet(CUSTOM_WIDGETS[4])
 
+        self.actualiserSelection()
+
         # show the dialog
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         self.dlg.show()
 
-
-
         # Run the dialog event loop
         result = self.dlg.exec_()
-        # # See if OK was pressed
 
         if result == 0:
+            suppr_symb_sens_num(self.layer)
+            self.layer.triggerRepaint()
             self.is_affiche_sens_num = False
-
-        #     # Do something useful here - delete the line containing pass and
-        #     # substitute with your code.
-        #     pass
+            self.dlgAProposDe.close()
