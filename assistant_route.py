@@ -96,7 +96,6 @@ class ChangeAttributRoute:
             valider_btn.setEnabled(True)
             actualise_btn.setEnabled(True)
 
-        # self.activerBoutons(True)
         self.controleDonnees(nature_val)
         self.set_attributs_defaut(nature_val)
         self.initbtnclic(LIST_BTN_NATURE, button_name)
@@ -371,6 +370,7 @@ class ChangeAttributRoute:
         """
 
         # declaration :dialogue
+
         self.dlgAProposDe = None
         self.dlg = None
 
@@ -378,6 +378,7 @@ class ChangeAttributRoute:
         self.is_affiche_sens_num = False
 
         self.read_only_nature = False
+        self.champs_manquant = []
         self.read_only_nb_voies = False
         self.read_only_larg_chaussee = False
         self.read_only_importance = False
@@ -470,6 +471,7 @@ class ChangeAttributRoute:
         if not self.read_only_restriction:
             list_btn += LIST_LINEEDIT_RESTR.copy()
         return list_btn
+
 
     # met en rose les attributs par défauts en fonction de la nature
     def set_attributs_defaut(self,attribut):
@@ -933,6 +935,7 @@ class ChangeAttributRoute:
     def activerBoutons(self, affiche):
         list_btn_editable = self.get_bouton_total_editable()
 
+        # champ en lecture seul
         widgets = self.dlg.findChildren((QPushButton, QLineEdit))
         for widget in widgets:
             name = widget.objectName()
@@ -944,6 +947,21 @@ class ChangeAttributRoute:
                 if name in self.listBtnTotal:
                     # désactive ou nom les btn
                     widget.setEnabled(affiche)
+
+        self.disable_btn_champ_manquant()
+
+    # désactive les btn dont les champs sont manquants
+    def disable_btn_champ_manquant(self):
+        # print(self.champs_manquant)
+        widgets = self.dlg.findChildren((QPushButton, QLineEdit))
+        for widget in widgets:
+            for champ_absent in self.champs_manquant:
+                if champ_absent in DICO_CHAMP_BTN.keys():
+                    if widget.objectName() in DICO_CHAMP_BTN[champ_absent]:
+                        if type(widget) == QLineEdit:
+                            widget.setText("")
+                        widget.setEnabled(False)
+
 
     # retourne la valeur du champ par defaut OU modifié
     def get_valeur_from_champs(self,nature):
@@ -1022,7 +1040,6 @@ class ChangeAttributRoute:
         #     if not valid :
         #         QMessageBox.warning(None, "Format invalide", f"Le contenu du champ '{widg.objectName()}' n'est pas valide.")
         #         break
-
 
         self.layer.startEditing()
 
@@ -1185,10 +1202,10 @@ class ChangeAttributRoute:
 
 
         # ******************************
-        champs_manquant, champs_readonly = test_modele(self.layer)
-        self.dlg.pushButton_warning.clicked.connect(lambda: config_modele(champs_manquant, champs_readonly))
+        self.champs_manquant, champs_readonly = test_modele(self.layer)
+        self.dlg.pushButton_warning.clicked.connect(lambda: config_modele(self.champs_manquant, champs_readonly))
         # self.dlg.pushButton_warning.hide()
-        if len(champs_manquant) == 0:
+        if len(self.champs_manquant) == 0:
             self.dlg.pushButton_warning.setStyleSheet("qproperty-icon: none;")
         # ******************************
 

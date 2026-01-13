@@ -42,6 +42,16 @@ LIST_LINEEDIT_RESTR = ["lineEditRestrHauteur","lineEditRestrLargeur","lineEditRe
                                    "lineEditRestrPoidsEssieu","lineEditRestrPoidsTotal"]
 
 
+DICO_CHAMP_BTN = {NATURE : LIST_BTN_NATURE,
+                  NB_VOIES : LIST_BTN_NBVOIES ,
+                  LARGEUR : LIST_BTN_LARGEUR,
+                  IMPORTANCE : LIST_BTN_IMPORTANCE,
+                  SENS : LIST_BTN_SENS,
+                  ACCES : LIST_BTN_ACCES
+                  }
+
+
+
 # attributs
 SANS_OBJET = "Sans objet"
 DOUBLE_SENS = "Double sens"
