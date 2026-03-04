@@ -1,8 +1,9 @@
 LAYER_ROUTE = "troncon_de_route"
 
 TITRE_INTERFACE = "Contribution directe BDUni (ROUTE)"
-VERSION = "v1.4.0"
+VERSION = "v1.5.0"
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
+PLUGIN_CHE_PLUS_COURT = "(IGN)chemin-le-plus-court"
 
 # champs
 IDENTIFIANT = "id"
