@@ -26,8 +26,8 @@ from PyQt5.QtWidgets import QLineEdit, QWidget
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QRegExp
 from qgis.PyQt.QtGui import QRegExpValidator
 from qgis.PyQt.QtWidgets import QPushButton
-from qgis._core import QgsMapLayer
 from qgis.core import Qgis
+from qgis.utils import plugins
 
 # Import the code for the dialog
 from .assistant_route_dialog import ChangeAttributRouteDialog
@@ -36,39 +36,21 @@ import os.path
 from .modele import *
 from .symbologie import *
 from .fonction import *
-from .cheminpluscourt import *
 from .aproposde import Aproposde
-
-# TODO : obsolete
-# recuperation de l'id de la transaction (à partir du plugin espace co)
-# def getidtransaction():
-#     from qgis.utils import plugins
-#     idtransaction = None
-#     try:
-#         processing_plugin = plugins[PLUGIN_ESPACE_CO]
-#         print("espace co trouvé")
-#         try:
-#             idtransaction = processing_plugin.getlibelletransaction()
-#         except AttributeError:
-#             idtransaction = "Récuperation en cours de développement"
-#     except KeyError:
-#         print("espace co PAS trouvé")
-#         pass
-#
-#     if idtransaction is None:
-#         return "Pas de transaction vers la BDUNI (travail hors ligne)"
-#     else:
-#         return idtransaction
 
 
 class ChangeAttributRoute:
     """QGIS Plugin Implementation."""
 
+    # dorénavant le "chemin le plus court" depend du plugin "(IGN)chemin-le-plus-court"
     def runchepluscourt(self):
-        self.cheminpluscourt.cheminpluscourt()
-        self.set_activeLayerRoute()
-        # zoom sur la selection
-        self.iface.actionZoomToSelected().trigger()
+        try:
+            processing_plugin = plugins[PLUGIN_CHE_PLUS_COURT]
+            processing_plugin.run()
+        except KeyError:
+            QMessageBox.warning(None, "Attention",
+                f"Le plugin {PLUGIN_CHE_PLUS_COURT} n'est pas installé ou pas activé\n"
+                f"- Veuillez l'activer dans le menu \"Installer/Gérer les extensions de QGIS\"")
 
     # NATURE *******************************************************
     def commut_nature(self, nature_val, button_name):
@@ -1209,8 +1191,6 @@ class ChangeAttributRoute:
             self.dlg.pushButton_warning.setStyleSheet("qproperty-icon: none;")
         # ******************************
 
-        self.cheminpluscourt = cheminpluscourt(self.iface, self.layer)
-
         self.dlg.mColorButton.setColor(self.iface.mapCanvas().selectionColor())
         self.dlg.mColorButton.colorChanged.connect(self.colorchange)
 
@@ -1354,6 +1334,11 @@ class ChangeAttributRoute:
         result = self.dlg.exec_()
 
         if result == 0:
+            # on deconnecte le signal en quittant
+            try:
+                self.iface.mapCanvas().selectionChanged.disconnect(self.actualiserSelection)
+            except TypeError:
+                pass  # aucune connexion existante
             suppr_symb_sens_num(self.layer)
             self.layer.triggerRepaint()
             self.is_affiche_sens_num = False
