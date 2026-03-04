@@ -21,7 +21,12 @@ jobs:
 
       - name: Build plugin zip
         run: |
-          zip -r "IGN_assistant-route.zip" . -x ".git/*" ".github/*"
+          mkdir -p IGN_assistant-route
+          rsync -av --progress . IGN_assistant-route/ \
+            --exclude .git \
+            --exclude .github \
+            --exclude IGN_assistant-route
+          zip -r IGN_assistant-route.zip IGN_assistant-route
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
