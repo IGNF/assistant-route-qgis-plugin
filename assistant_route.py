@@ -34,7 +34,6 @@ from .assistant_route_dialog import ChangeAttributRouteDialog
 import os.path
 
 from .modele import *
-from .symbologie import *
 from .fonction import *
 from .aproposde import Aproposde
 
@@ -356,8 +355,6 @@ class ChangeAttributRoute:
         self.dlgAProposDe = None
         self.dlg = None
 
-        # boolean pour afficher/masquer le sens de numérisation
-        self.is_affiche_sens_num = False
 
         self.read_only_nature = False
         self.champs_manquant = []
@@ -1118,16 +1115,13 @@ class ChangeAttributRoute:
         self.dico_attributs_modifie[champs] = widget.text()
 
     def afficher_sens_num(self):
-        if self.is_affiche_sens_num:
-            self.dlg.pushButtonsensNumerisation.setText("Afficher le sens\n de numérisation")
-            suppr_symb_sens_num(self.layer)
-            self.is_affiche_sens_num = False
-        else:
-            self.dlg.pushButtonsensNumerisation.setText("Masquer le sens\n de numérisation")
-            add_symb_sens_num(self.layer)
-            self.is_affiche_sens_num = True
-        self.layer.triggerRepaint()
-        self.iface.mapCanvas().refresh()
+        try:
+            processing_plugin = plugins[PLUGIN_CHE_SENS_NUM]
+            processing_plugin.run()
+        except KeyError:
+            QMessageBox.warning(None, "Attention",
+                                f"Le plugin {PLUGIN_CHE_SENS_NUM} n'est pas installé ou pas activé\n"
+                                f"- Veuillez l'activer dans le menu \"Installer/Gérer les extensions de QGIS\"")
 
     def afficheAProposeDe(self):
         self.dlgAProposDe.show()
@@ -1176,7 +1170,7 @@ class ChangeAttributRoute:
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
 
         self.dlg = ChangeAttributRouteDialog()
-        self.dlg.setWindowTitle(f"{TITRE_INTERFACE}  {VERSION}")
+        self.dlg.setWindowTitle(f"{TITRE_INTERFACE}")
 
         self.dlgAProposDe = Aproposde()
         self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
@@ -1339,7 +1333,13 @@ class ChangeAttributRoute:
                 self.iface.mapCanvas().selectionChanged.disconnect(self.actualiserSelection)
             except TypeError:
                 pass  # aucune connexion existante
-            suppr_symb_sens_num(self.layer)
+
+            # si on quitte, on remet la vue sans le sens de numérisation via le plugin
+            try:
+                processing_plugin = plugins[PLUGIN_CHE_SENS_NUM]
+                processing_plugin.suppr_symb_sens_num(self.layer)
+            except:
+                pass
+
             self.layer.triggerRepaint()
-            self.is_affiche_sens_num = False
             self.dlgAProposDe.close()

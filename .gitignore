@@ -1,3 +1,4 @@
+.idea
 # Ignorer le dossier __pycache__/
 __pycache__/
 SENS_NUM/sauvegarde_style_route.qml
