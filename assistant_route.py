@@ -21,11 +21,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt5.QtGui import QValidator
-from PyQt5.QtWidgets import QLineEdit, QWidget
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QRegExp
-from qgis.PyQt.QtGui import QRegExpValidator
-from qgis.PyQt.QtWidgets import QPushButton
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtWidgets import QPushButton,QLineEdit, QWidget
 from qgis.core import Qgis
 from qgis.utils import plugins
 
@@ -33,6 +30,7 @@ from qgis.utils import plugins
 from .assistant_route_dialog import ChangeAttributRouteDialog
 import os.path
 
+from .mapping_version import *
 from .modele import *
 from .fonction import *
 from .aproposde import Aproposde
@@ -41,7 +39,7 @@ from .aproposde import Aproposde
 class ChangeAttributRoute:
     """QGIS Plugin Implementation."""
 
-    # dorénavant le "chemin le plus court" depend du plugin "(IGN)chemin-le-plus-court"
+    # dorénavant le "chemin le plus court" dépend du plugin "(IGN)chemin-le-plus-court"
     def runchepluscourt(self):
         try:
             processing_plugin = plugins[PLUGIN_CHE_PLUS_COURT]
@@ -356,14 +354,13 @@ class ChangeAttributRoute:
         self.dlg = None
 
 
-        self.read_only_nature = False
         self.champs_manquant = []
+        self.read_only_nature = False
         self.read_only_nb_voies = False
         self.read_only_larg_chaussee = False
         self.read_only_importance = False
         self.read_only_sens_circu = False
         self.read_only_acces_leger = False
-        # ici je gere toutes les restrictions ensemble, à voir si plus tard on les sépare
         self.read_only_restriction = False
         self.read_only_restr_hauteur = False
         self.read_only_restr_largeur = False
@@ -383,7 +380,7 @@ class ChangeAttributRoute:
         self.listBtnTotal += LIST_LINEEDIT_RESTR.copy()
 
         # construction d'un dico (cle : btn, valeur, regex)
-        # pour gerer la validation du format des données juste avant la transaction
+        # pour gérer la validation du format des données juste avant la transaction
         self.dict_widg_reggex = {
                 "lineEditLargeur": REGEX_LARGEUR,
                 "lineEditRestrHauteur": REGEX_RESTR_HAUTEUR,
@@ -430,7 +427,7 @@ class ChangeAttributRoute:
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
 
-    # initialise la liste de tous les boutons (des differents champs)
+    # initialise la liste de tous les boutons (des différents champs)
     # excepté ceux qui sont en lecture seule
     def get_bouton_total_editable(self):
         list_btn = []
@@ -466,7 +463,6 @@ class ChangeAttributRoute:
             if not self.read_only_nb_voies:
                 self.dico_attributs_modifie[NB_VOIES] = SANS_OBJET
                 self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
-            # self.dlg.pushButtonLargeurVide.setStyleSheet(CUSTOM_WIDGETS[0])
 
             if not self.read_only_larg_chaussee:
                 self.dico_attributs_modifie[LARGEUR] = "NULL"
@@ -492,7 +488,6 @@ class ChangeAttributRoute:
                 # on passe l'edit largeur en blanc aussi
                 self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
 
-            # self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
             if not self.read_only_importance:
                 self.dico_attributs_modifie[IMPORTANCE] = "6"
                 self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
@@ -509,15 +504,6 @@ class ChangeAttributRoute:
             if not self.read_only_sens_circu:
                 self.dlg.pushButtonSensUnique.setStyleSheet(CUSTOM_WIDGETS[0])
                 self.dico_attributs_modifie[SENS] = SENS_DIRECT
-
-        # if attribut == ACCES_IMPOSSIBLE:
-        #     self.dlg.pushButtonImportance6.setStyleSheet(CUSTOM_WIDGETS[0])
-        #     self.dico_attributs_modifie[IMPORTANCE] = "6"
-        #
-        # if attribut == IMPORTANCE:
-        #     if self.dico_attributs_commun[NATURE] == RTE_1_CHAUSSEE:
-        #         self.dlg.pushButtonSensSansVal.setStyleSheet(CUSTOM_WIDGETS[0])
-        #         self.dico_attributs_modifie[SENS] = ""
 
 
     def set_attributs_commun_lineedit(self,nom_attr, liste_valeurs, nom_widget_lineedit):
@@ -537,7 +523,6 @@ class ChangeAttributRoute:
         widget = getattr(self.dlg, nom_widget_lineedit, None)
         if widget:
             widget.setText(str(valeur))
-
 
     # rempli un dico avec uniquement les attributs communs
     # sinon "***" à la place des attributs non communs
@@ -820,9 +805,6 @@ class ChangeAttributRoute:
                 self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
                 self.dlg.pushButton3voies.setEnabled(False)
                 self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            if not self.read_only_larg_chaussee:
-                self.dlg.lineEditLargeur.setEnabled(False)
-                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
             if not self.read_only_importance:
                 self.dlg.pushButtonImportance1.setEnabled(False)
                 self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
@@ -848,9 +830,6 @@ class ChangeAttributRoute:
                 self.dlg.pushButton2voies.setStyleSheet(CUSTOM_WIDGETS[6])
                 self.dlg.pushButton3voies.setEnabled(False)
                 self.dlg.pushButton3voies.setStyleSheet(CUSTOM_WIDGETS[6])
-            if not self.read_only_larg_chaussee:
-                self.dlg.lineEditLargeur.setEnabled(False)
-                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[6])
             if not self.read_only_importance:
                 self.dlg.pushButtonImportance1.setEnabled(False)
                 self.dlg.pushButtonImportance1.setStyleSheet(CUSTOM_WIDGETS[6])
@@ -929,9 +908,8 @@ class ChangeAttributRoute:
 
         self.disable_btn_champ_manquant()
 
-    # désactive les btn dont les champs sont manquants
+    # on désactive les btn dont les champs sont manquants
     def disable_btn_champ_manquant(self):
-        # print(self.champs_manquant)
         widgets = self.dlg.findChildren((QPushButton, QLineEdit))
         for widget in widgets:
             for champ_absent in self.champs_manquant:
@@ -1088,12 +1066,16 @@ class ChangeAttributRoute:
 
     # test si le format des données est valide
     def is_valid_regex(self,widget,regex):
-        decimal_regex = QRegExp(regex)
-        validator = QRegExpValidator(decimal_regex, widget)
+        if QT6:
+            rx = QRegularExpression(regex)
+            validator = QRegularExpressionValidator(rx, widget)
+        else:
+            rx = QRegExp(regex)
+            validator = QRegExpValidator(rx, widget)
         widget.setValidator(validator)
         # Validation du texte actuel dans le widget
         state, _, _ = validator.validate(widget.text(), 0)
-        return state == QValidator.Acceptable
+        return state == Acceptable
 
     def click_edit(self,widget,champs,event):
         widget.clear()
@@ -1151,11 +1133,6 @@ class ChangeAttributRoute:
     def unload(self):
         pass
 
-    def keyPressEvent(self, event):
-        # if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-        #     afficheerreur("touche entrer")
-        pass
-
     def run(self):
         """Run method that performs all the real work"""
         projet = QgsProject.instance()
@@ -1173,7 +1150,7 @@ class ChangeAttributRoute:
         self.dlg.setWindowTitle(f"{TITRE_INTERFACE}")
 
         self.dlgAProposDe = Aproposde()
-        self.dlgAProposDe.setWindowFlags(Qt.WindowStaysOnTopHint|Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
+        self.dlgAProposDe.setWindowFlags(WindowStaysOnTopHint|WindowTitleHint | WindowCloseButtonHint)
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(afficheDoc)
 
 
@@ -1321,11 +1298,11 @@ class ChangeAttributRoute:
 
         # show the dialog
         self.dlg.setParent(self.iface.mainWindow())
-        self.dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
+        self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
         self.dlg.show()
 
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.dlg.exec()
 
         if result == 0:
             # on deconnecte le signal en quittant

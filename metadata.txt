@@ -5,8 +5,9 @@
 [general]
 name=IGN Contribution directe BDUni (ROUTE)
 qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
 description=Aide à la contribution directe sur le thème routier
-version=1.5.0
+version=1.6.0
 author=Gérôme PECHEUR (IGN)
 email=gerome.pecheur@ign.fr
 

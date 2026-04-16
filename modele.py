@@ -1,8 +1,9 @@
 import os
 
-from PyQt5.QtWidgets import QDialog, QLabel, QFrame, QTableWidgetItem, QTextEdit
-from PyQt5.uic import loadUi
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog, QLabel, QTextEdit
+from qgis.PyQt.uic import loadUi
+
+from .mapping_version import *
 
 CHAMPS_USE = ["nature","nombre_de_voies","largeur_de_chaussee","importance",
               "sens_de_circulation","acces_vehicule_leger","restriction_de_hauteur","restriction_de_largeur",
@@ -34,7 +35,7 @@ def isreadonly(layer,champ):
 def config_modele(champs_manquant,champs_readonly):
     dlgConfig = QDialog()
     loadUi(os.path.join(os.path.dirname(__file__) ,"modele.ui"), dlgConfig)
-    dlgConfig.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint)
+    dlgConfig.setWindowFlags(Dialog |WindowStaysOnTopHint | WindowCloseButtonHint)
     dlgConfig.setWindowTitle("Compatibilité du modéle")
 
     dlgConfig.tableWidget_etat_champs.setColumnCount(2)
@@ -43,13 +44,12 @@ def config_modele(champs_manquant,champs_readonly):
     dlgConfig.tableWidget_etat_champs.verticalHeader().setDefaultSectionSize(20)
 
     # champs manquants
-    dlgConfig.textEdit_champs_manquants.setLineWrapMode(QTextEdit.NoWrap)
+    dlgConfig.textEdit_champs_manquants.setLineWrapMode(NoWrap)
     for champ in champs_manquant:
         dlgConfig.textEdit_champs_manquants.append(f"<span style = 'color: red'><b>{champ}</b></span>")
 
     # état des champs
     for row, (champ, readonly) in enumerate(champs_readonly.items()):
-        print(champ, readonly)
         if readonly:
             readonly_str = "<span style = 'color: red'><b>NON</b></span>"
         else:
@@ -59,9 +59,9 @@ def config_modele(champs_manquant,champs_readonly):
         dlgConfig.tableWidget_etat_champs.setCellWidget(row, 0, label_champ)
 
         label_readonly = QLabel(readonly_str)
-        label_readonly.setAlignment(Qt.AlignCenter)
+        label_readonly.setAlignment(AlignCenter)
         dlgConfig.tableWidget_etat_champs.setCellWidget(row, 1, label_readonly)
 
     dlgConfig.tableWidget_etat_champs.resizeColumnsToContents()
 
-    dlgConfig.exec_()
+    dlgConfig.exec()
