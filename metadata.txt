@@ -10,6 +10,7 @@ description=Aide à la contribution directe sur le thème routier
 version=1.6.0
 author=Gérôme PECHEUR (IGN)
 email=gerome.pecheur@ign.fr
+license=GNU AGPL v3
 
 about=Ce plugin permet une contribution directe sur les données IGN.
 
