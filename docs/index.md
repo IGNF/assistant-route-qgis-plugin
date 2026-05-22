@@ -18,56 +18,7 @@ alt="logo_IGN_pour_lettre" /></td>
 </tbody>
 </table>
 
-<table style="width:100%;">
-<colgroup>
-<col style="width: 24%" />
-<col style="width: 18%" />
-<col style="width: 5%" />
-<col style="width: 11%" />
-<col style="width: 5%" />
-<col style="width: 7%" />
-<col style="width: 4%" />
-<col style="width: 20%" />
-</colgroup>
-<thead>
-<tr>
-<th colspan="4" style="text-align: center;">Identifiant</th>
-<th colspan="3" style="text-align: center;">Version</th>
-<th style="text-align: center;">Date de création</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="4"></td>
-<td colspan="3" style="text-align: center;"><strong>1.6.0</strong></td>
-<td style="text-align: center;">16/03/2026</td>
-</tr>
-<tr>
-<td>Rédacteur</td>
-<td colspan="7">Gérôme PECHEUR</td>
-</tr>
-<tr>
-<td><em>Entité émettrice</em></td>
-<td colspan="7">DTSO</td>
-</tr>
-<tr>
-<td>Diffusion</td>
-<td colspan="2">□ Interne</td>
-<td colspan="3">■ Ouverte</td>
-<td colspan="2" style="text-align: center;">□ Limitée</td>
-</tr>
-<tr>
-<td>Résumé</td>
-<td colspan="7">Installation et utilisation du plugin</td>
-</tr>
-<tr>
-<td>Approbateur</td>
-<td></td>
-<td colspan="3">Date d’approbation</td>
-<td colspan="3" style="text-align: center;">16/03/2026</td>
-</tr>
-</tbody>
-</table>
+
 
 | Version |    Date    | Modifié par     | Historique des modifications            |
 |:-------:|:----------:|-----------------|-----------------------------------------|
@@ -81,31 +32,32 @@ alt="logo_IGN_pour_lettre" /></td>
 
 **Sommaire**
 
-[1 Prérequis [2](#prérequis)](#prérequis)
+[1 - Prérequis](#prérequis)
 
-[2 Résumé [2](#résumé)](#résumé)
+[2 - Résumé](#résumé)
 
-[3 Installation [2](#installation)](#installation)
+[3 - Installation](#installation)
 
-[4 Présentation [3](#présentation)](#présentation)
+[4 - Présentation](#présentation)
 
-[5 Mode de sélection [4](#mode-de-sélection)](#mode-de-sélection)
+[5 - Mode de sélection](#mode-de-sélection)
 
-[5.1 Sélection unique [4](#sélection-unique)](#sélection-unique)
+[5.1 - Sélection unique](#sélection-unique)
 
-[5.2 Sélection multiple [4](#sélection-multiple)](#sélection-multiple)
+[5.2 - Sélection multiple](#sélection-multiple)
 
-[6 Modification [4](#modification)](#modification)
+[6 - Modification](#modification)
 
-[7 Extra [5](#extra)](#extra)
+[7 - Extra](#extra)
 
-[7.1 A propos [5](#a-propos)](#a-propos)
+[7.1 - A propos](#a-propos)
 
 # 
 
 # Prérequis
 
-Version de QGIS : 3.28 ou supérieur.
+Version de QGIS : 3.28 ou supérieur.  
+Y compris QGIS4
 
 Ce plugin fonctionne en parallèle des extensions « IGN Espace
 collaboratif » version 4.2.2 et IGN_Maitre.

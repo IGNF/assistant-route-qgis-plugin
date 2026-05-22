@@ -14,8 +14,9 @@ license=GNU AGPL v3
 
 about=Ce plugin permet une contribution directe sur les données IGN.
 
-#tracker=http://bugs
-#repository=http://repo
+homepage=https://ignf.github.io/assistant-route-qgis-plugin/
+tracker=https://github.com/IGNF/assistant-route-qgis-plugin/issues
+repository=https://github.com/IGNF/assistant-route-qgis-plugin
 # End of mandatory metadata
 
 # Recommended items:
@@ -30,7 +31,6 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=python
 
-#homepage=http://homepage
 category=Plugins
 icon=icons/icon_principal.png
 # experimental flag
