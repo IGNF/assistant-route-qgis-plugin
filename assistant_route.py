@@ -1016,9 +1016,12 @@ class ChangeAttributRoute:
             f"Les modifications ont été effectués sur : {self.layer.selectedFeatureCount()} tronçon(s)")
 
     def actualiserSelection(self):
-        layer = QgsProject.instance().mapLayersByName(LAYER_ROUTE)
-        if not layer:
+        layers = QgsProject.instance().mapLayersByName(LAYER_ROUTE)
+        if not layers:
             return
+        self.layer = layers[0]
+        self.listeSelection = self.layer.selectedFeatures()
+
         # remettre le fond par defaut
         self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
         self.dlg.lineEditRestrHauteur.setStyleSheet(CUSTOM_WIDGETS[2])
@@ -1026,7 +1029,6 @@ class ChangeAttributRoute:
         self.dlg.pushButtonValiderTransaction.setEnabled(False)
         self.dlg.pushButtonchepluscourt.setEnabled(False)
 
-        self.listeSelection = self.layer.selectedFeatures()
         self.get_nb_selection()
         self.dlg.labelNbSelection.setText(f"Vous avez sélectionné : <span style='color: red'><b>{self.get_nb_selection()}</b></span> tronçon(s)")
 
