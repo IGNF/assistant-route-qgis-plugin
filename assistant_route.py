@@ -52,8 +52,8 @@ class ChangeAttributRoute:
     def keep_largeur_chaussee(self):
         # affiche un dialogue oui / non pour conserver ou nom la largeur de chaussée.
         reply = QMessageBox.question(self.iface.mainWindow(),"Largeur","Voulez-vous conserver la largeur de chaussée ?",
-            QMessageBox.Yes | QMessageBox.No,QMessageBox.No)
-        if reply == QMessageBox.Yes:
+            Yes | No,No)
+        if reply == Yes:
             return True
         else:
             return False
