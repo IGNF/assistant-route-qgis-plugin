@@ -5,6 +5,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.core import QgsCoordinateReferenceSystem, QgsProject
 
 import subprocess
+import webbrowser
 
 from .constante import *
 
@@ -31,11 +32,7 @@ def ecrire_debut_fichier(text):
 
 
 def afficheDoc():
-    fichier = os.path.join(os.path.dirname(__file__), "contribution directe (route).pdf")
-    if not os.path.isfile(fichier):
-        afficheerreur("La documentation est introuvable", "Information")
-    else:
-        subprocess.Popen(['start', '', fichier], shell=True)
+    webbrowser.open("https://ignf.github.io/assistant-route-qgis-plugin/")
 
 def afficherlog():
     fic = os.path.dirname(__file__) + "/transaction.xlsx"
