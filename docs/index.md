@@ -9,7 +9,7 @@
 style="width:1.38681in;height:1.47153in"
 alt="logo_IGN_pour_lettre" /></td>
 <td style="text-align: center;"><p><strong>Manuel utilisateur du plugin
-« contribution directe (route) »</strong></p>
+« IGN Contribution directe BDUni (ROUTE) »</strong></p>
 <p><strong>V1.7.0</strong></p></td>
 </tr>
 <tr>
