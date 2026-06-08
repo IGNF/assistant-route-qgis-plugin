@@ -49,8 +49,18 @@ class ChangeAttributRoute:
                 f"Le plugin {PLUGIN_CHE_PLUS_COURT} n'est pas installé ou pas activé\n"
                 f"- Veuillez l'activer dans le menu \"Installer/Gérer les extensions de QGIS\"")
 
+    def keep_largeur_chaussee(self):
+        # affiche un dialogue oui / non pour conserver ou nom la largeur de chaussée.
+        reply = QMessageBox.question(self.iface.mainWindow(),"Largeur","Voulez-vous conserver la largeur de chaussée ?",
+            QMessageBox.Yes | QMessageBox.No,QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            return True
+        else:
+            return False
+
+
     # NATURE *******************************************************
-    def commut_nature(self, nature_val, button_name):
+    def commut_nature(self, nature_val, button_name,keep_largeur=False):
         if self.get_nb_selection() == 0:
             return
 
@@ -76,7 +86,7 @@ class ChangeAttributRoute:
             actualise_btn.setEnabled(True)
 
         self.controleDonnees(nature_val)
-        self.set_attributs_defaut(nature_val)
+        self.set_attributs_defaut(nature_val,keep_largeur)
         self.initbtnclic(LIST_BTN_NATURE, button_name)
 
     def torte2chaussee(self):
@@ -86,10 +96,12 @@ class ChangeAttributRoute:
         self.commut_nature(RTE_1_CHAUSSEE, "pushButtonRte1Chaussee")
 
     def toempierree(self):
-        self.commut_nature(RTE_EMPIERREE, "pushButtonEmpierree")
+        keep_largeur = self.keep_largeur_chaussee()
+        self.commut_nature(RTE_EMPIERREE, "pushButtonEmpierree",keep_largeur)
 
     def tochemin(self):
-        self.commut_nature(CHEMIN, "pushButtonChemin")
+        keep_largeur = self.keep_largeur_chaussee()
+        self.commut_nature(CHEMIN, "pushButtonChemin",keep_largeur)
 
     def tosentier(self):
         self.commut_nature(SENTIER, "pushButtonSentier")
@@ -450,7 +462,7 @@ class ChangeAttributRoute:
 
 
     # met en rose les attributs par défauts en fonction de la nature
-    def set_attributs_defaut(self,attribut):
+    def set_attributs_defaut(self,attribut,keep_largeur=False):
         # TODO set_attributs_defaut
         self.initbtnclic(self.listBtnTotal)
 
@@ -465,9 +477,11 @@ class ChangeAttributRoute:
                 self.dlg.pushButtonVoieSansObjet.setStyleSheet(CUSTOM_WIDGETS[0])
 
             if not self.read_only_larg_chaussee:
-                self.dico_attributs_modifie[LARGEUR] = "NULL"
-                # on passe l'edit largeur en blanc aussi
-                self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+                if not keep_largeur:
+                    self.dico_attributs_modifie[LARGEUR] = "NULL"
+                    # on passe l'édit largeur en blanc aussi
+                    self.dlg.lineEditLargeur.setStyleSheet(CUSTOM_WIDGETS[2])
+                    self.dlg.lineEditLargeur.setText("NULL")
 
             if not self.read_only_importance:
                 self.dico_attributs_modifie[IMPORTANCE] = "5"
@@ -733,8 +747,6 @@ class ChangeAttributRoute:
     # initialiser les boutons en rose lorsqu'ils sont pressés
     # passe tous les boutons d'un groupe (listgroupebtn) par defaut avant de mettre en rose celui en parametre (btnclick)
     def initbtnclic(self, listgroupebtn, btnclick=""):
-        # TODO initbtnclic
-
         # en rose le cliqué, tous les autres d'un même groupe par defaut.
         widgets = self.dlg.findChildren((QPushButton, QLineEdit))
         for widget in widgets:
@@ -766,8 +778,6 @@ class ChangeAttributRoute:
 
     # désactive les widgets pour les valeurs interdites
     def controleDonnees(self, nature):
-        # TODO controleDonnees
-
         # active tous les boutons initialement
         self.activerBoutons(True)
 
