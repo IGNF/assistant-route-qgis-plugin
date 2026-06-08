@@ -10,7 +10,7 @@ style="width:1.38681in;height:1.47153in"
 alt="logo_IGN_pour_lettre" /></td>
 <td style="text-align: center;"><p><strong>Manuel utilisateur du plugin
 « contribution directe (route) »</strong></p>
-<p><strong>V1.6.0</strong></p></td>
+<p><strong>V1.7.0</strong></p></td>
 </tr>
 <tr>
 <td style="text-align: center;"></td>
@@ -22,13 +22,7 @@ alt="logo_IGN_pour_lettre" /></td>
 
 | Version |    Date    | Modifié par     | Historique des modifications            |
 |:-------:|:----------:|-----------------|-----------------------------------------|
-|   0.1   | 21/03/2024 | Gérôme PECHEUR  | Création                                |
-|  1.0.0  | 08/07/2025 | Gérôme PECHEUR  | Adaptation à la version 1.0.0 du plugin |
-|  1.1.0  | 24/07/2025 | Philippe Gallen | Adaptation à la version 1.1.0 du plugin |
-|  1.1.1  | 29/08/2025 | Philippe Gallen | Adaptation à la version 1.1.1 du plugin |
-|  1.4.0  | 09/01/2026 | Philippe Gallen | Adaptation à la version 1.4.0 du plugin |
-|  1.5.0  | 16/03/2026 | Philippe Gallen | Adaptation à la version 1.5.0 du plugin |
-|  1.6.0  | 16/04/2026 | Gérôme PECHEUR  | Adaptation à la version 1.6.0 du plugin |
+|         | 21/03/2024 | Gérôme PECHEUR  | Création                                |
 
 **Sommaire**
 
@@ -52,9 +46,8 @@ alt="logo_IGN_pour_lettre" /></td>
 
 [7.1 - A propos](#a-propos)
 
-# 
 
-# Prérequis
+# 1. Prérequis
 
 Version de QGIS : 3.28 ou supérieur.  
 Y compris QGIS4
@@ -69,13 +62,13 @@ dans l’exécutable d’installation).
 Ce plugin fonctionne uniquement avec la couche éditable des routes de la
 BDTopo nommée : « troncon_de_route ».
 
-# Résumé
+# 2. Résumé
 
 Ce plugin est une aide à la modification des attributs des tronçons de
 routes de la BDTopo en y intégrant des contrôles sémantiques pour tout
 changements.
 
-# Installation
+# 3. Installation
 
 Le plugin s’installe en lançant l’exécutable d’installation et en
 cochant le plugin route.
@@ -83,7 +76,7 @@ cochant le plugin route.
 Installer les plugins Chemin le plus court et Sens de numérisation pour
 avoir accès à ces fonctionnalités.
 
-# Présentation
+# 4. Présentation
 
 <img src="images/image2.png"
 style="width:4.40137in;height:1.64917in" />
@@ -133,9 +126,9 @@ la BDTOPO.
 style="width:1.20518in;height:1.84368in" />
 </figure>
 
-# Mode de sélection
+# 5. Mode de sélection
 
-## Sélection unique
+## 5.1. Sélection unique
 
 - Sélection unique, on ne sélectionne qu’un seul tronçon avec l’outil de
   sélection de QGIS
@@ -146,7 +139,7 @@ style="width:1.20518in;height:1.84368in" />
 > Les valeurs des attributs du tronçon sélectionné s’affichent en vert
 > dans l’interface.
 
-## Sélection multiple
+## 5.2. Sélection multiple
 
 - Sélection multiple avec l’outil de saisie. Dans QGIS on peut
   sélectionner manuellement un ensemble de tronçons
@@ -167,7 +160,7 @@ style="width:1.20518in;height:1.84368in" />
 > Seuls les attributs communs à tous les tronçons sont représentés en
 > vert.
 
-# Modification
+# 6. Modification
 
 Une fois les tronçons sélectionnés il suffit de cliquer sur les
 nouvelles valeurs choisies.
@@ -193,13 +186,13 @@ Un message QGIS confirme la prise en compte des modifications.
 <img src="images/image14.png"
 style="width:4.72917in;height:0.35417in" />
 
-# 
 
-# 
 
-# Extra
 
-## A propos
+
+# 7. Extra
+
+## 7.1. A propos
 
 Accessible via <img src="images/image15.PNG"
 style="width:0.23962in;height:0.25003in" />.
