@@ -13,41 +13,40 @@ alt="logo_IGN_pour_lettre" /></td>
 <p><strong>V1.7.0</strong></p></td>
 </tr>
 <tr>
-<td style="text-align: center;"></td>
+<td style="font-size: 16px;text-align: center;">Développeur  : Gérôme PECHEUR (IGN)</td>
 </tr>
 </tbody>
 </table>
 
 
+                        
 
-| Version |    Date    | Modifié par     | Historique des modifications            |
-|:-------:|:----------:|-----------------|-----------------------------------------|
-|         | 21/03/2024 | Gérôme PECHEUR  | Création                                |
+## Sommaire
 
-**Sommaire**
+- [1 - Prérequis](#prerequis)
 
-[1 - Prérequis](#prérequis)
+- [2 - Résumé](#resume)
 
-[2 - Résumé](#résumé)
+- [3 - Installation](#installation)
 
-[3 - Installation](#installation)
+- [4 - Présentation](#presentation)
 
-[4 - Présentation](#présentation)
+- [5 - Mode de sélection](#mode-de-selection)
 
-[5 - Mode de sélection](#mode-de-sélection)
+    - [5.1 - Sélection unique](#selection-unique)
 
-[5.1 - Sélection unique](#sélection-unique)
+    - [5.2 - Sélection multiple](#selection-multiple)
 
-[5.2 - Sélection multiple](#sélection-multiple)
+- [6 - Modification](#modification)
 
-[6 - Modification](#modification)
+- [7 - Extra](#extra)
 
-[7 - Extra](#extra)
-
-[7.1 - A propos](#a-propos)
+    - [7.1 - A propos](#a-propos)
 
 
-# 1. Prérequis
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="prerequis" style="color: white;margin:0;" >1. Prérequis</h2>
+</div>
 
 Version de QGIS : 3.28 ou supérieur.  
 Y compris QGIS4
@@ -62,13 +61,17 @@ dans l’exécutable d’installation).
 Ce plugin fonctionne uniquement avec la couche éditable des routes de la
 BDTopo nommée : « troncon_de_route ».
 
-# 2. Résumé
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="resume" style="color: white;margin:0;" >2. Résumé</h2>
+</div>
 
 Ce plugin est une aide à la modification des attributs des tronçons de
 routes de la BDTopo en y intégrant des contrôles sémantiques pour tout
 changements.
 
-# 3. Installation
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="installation" style="color: white;margin:0;" >3. Installation</h2>
+</div>
 
 Le plugin s’installe en lançant l’exécutable d’installation et en
 cochant le plugin route.
@@ -76,7 +79,9 @@ cochant le plugin route.
 Installer les plugins Chemin le plus court et Sens de numérisation pour
 avoir accès à ces fonctionnalités.
 
-# 4. Présentation
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="presentation" style="color: white;margin:0;" >4. Présentation</h2>
+</div>
 
 <img src="images/image2.png"
 style="width:4.40137in;height:1.64917in" />
@@ -126,20 +131,27 @@ la BDTOPO.
 style="width:1.20518in;height:1.84368in" />
 </figure>
 
-# 5. Mode de sélection
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="mode-de-selection" style="color: white;margin:0;" >5. Mode de sélection</h2>
+</div>
 
-## 5.1. Sélection unique
+
+<div  style="font-size: 10px;background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="selection-unique" style="color: white;margin:0;" >5.1 Sélection unique</h2>
+</div>
 
 - Sélection unique, on ne sélectionne qu’un seul tronçon avec l’outil de
   sélection de QGIS
 
-> <img src="images/image9.png"
-> style="width:4.18785in;height:1.60701in" />
->
-> Les valeurs des attributs du tronçon sélectionné s’affichent en vert
-> dans l’interface.
+<img src="images/image9.png"
+style="width:4.18785in;height:1.60701in" />
 
-## 5.2. Sélection multiple
+Les valeurs des attributs du tronçon sélectionné s’affichent en vert
+dans l’interface.
+
+<div  style="font-size: 10px;background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="selection-multiple" style="color: white;margin:0;" >5.2. Sélection multiple</h2>
+</div>
 
 - Sélection multiple avec l’outil de saisie. Dans QGIS on peut
   sélectionner manuellement un ensemble de tronçons
@@ -154,13 +166,15 @@ style="width:1.20518in;height:1.84368in" />
   contrôle visuel est toutefois nécessaire afin de vérifier si la
   sélection faite est celle attendue.
 
-> <img src="images/image10.png"
-> style="width:3.92762in;height:1.50716in" />
->
-> Seuls les attributs communs à tous les tronçons sont représentés en
-> vert.
+<img src="images/image10.png"
+style="width:3.92762in;height:1.50716in" />
 
-# 6. Modification
+Seuls les attributs communs à tous les tronçons sont représentés en
+vert.
+
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="modification" style="color: white;margin:0;" >6. Modification</h2>
+</div>
 
 Une fois les tronçons sélectionnés il suffit de cliquer sur les
 nouvelles valeurs choisies.
@@ -190,9 +204,13 @@ style="width:4.72917in;height:0.35417in" />
 
 
 
-# 7. Extra
+<div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="extra" style="color: white;margin:0;" >7. Extra</h2>
+</div>
 
-## 7.1. A propos
+<div  style="font-size: 10px;background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
+  <h2 id="a_propos" style="color: white;margin:0;" >7.1. A propos</h2>
+</div>
 
 Accessible via <img src="images/image15.PNG"
 style="width:0.23962in;height:0.25003in" />.
@@ -200,5 +218,5 @@ style="width:0.23962in;height:0.25003in" />.
 Cette boite permet de suivre l’historique des différentes versions ainsi
 que d’afficher cette documentation.
 
-> <img src="images/image16.png"
-> style="width:2.35763in;height:3.44022in" />
+<img src="images/image16.png"
+style="width:2.35763in;height:3.44022in" />
