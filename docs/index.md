@@ -51,8 +51,8 @@ alt="logo_IGN_pour_lettre" /></td>
 Version de QGIS : 3.28 ou supérieur.  
 Y compris QGIS4
 
-Ce plugin fonctionne en parallèle des extensions « IGN Espace
-collaboratif » version 4.2.2 et IGN_Maitre.
+Le plugin « maitre » doit préalablement être installé : 
+[maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
 
 Les fonctionnalités Afficher le sens de numérisation et Chemin le plus
 court nécessitent l’installation des 2 plugins de même nom (à cocher
