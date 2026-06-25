@@ -21,16 +21,15 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
-from qgis.PyQt.QtWidgets import QPushButton,QLineEdit, QWidget
-from qgis.core import Qgis
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QSize, QPoint
+from qgis.PyQt.QtWidgets import QPushButton,QLineEdit, QWidget,QApplication
+from qgis.core import Qgis,QgsApplication
 from qgis.utils import plugins
 
 # Import the code for the dialog
 from .assistant_route_dialog import ChangeAttributRouteDialog
 import os.path
 
-from .mapping_version import *
 from .modele import *
 from .fonction import *
 from .aproposde import Aproposde
@@ -737,7 +736,7 @@ class ChangeAttributRoute:
         layer = project.mapLayersByName(LAYER_ROUTE)
         if not layer:
             if message:
-                afficheerreur(f"la couche \"{LAYER_ROUTE}\" n'existe pas",TITRE_INTERFACE)
+                afficheerreur(f"la couche \"{LAYER_ROUTE}\" n'existe pas",TITRE)
             return False
         else:
             self.iface.setActiveLayer(layer[0])
@@ -1118,7 +1117,7 @@ class ChangeAttributRoute:
                                 f"- Veuillez l'activer dans le menu \"Installer/Gérer les extensions de QGIS\"")
 
     def afficheAProposeDe(self):
-        self.dlgAProposDe.show()
+        self.dlgAProposDe.exec()
 
     def zoom_selection(self):
         self.iface.actionZoomToSelected().trigger()
@@ -1140,10 +1139,76 @@ class ChangeAttributRoute:
 
 
     def initGui(self):
-        pass
+        self.iface.projectRead.connect(self.on_project_opened)
 
     def unload(self):
         pass
+
+    def sauve_position_dial(self):
+
+        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope,
+                             "IGN", TITRE)
+        settings.setValue("position", self.dlg.pos())
+        settings.setValue("taille", self.dlg.size())
+        settings.setValue("visible", self.dlg.isVisible())
+        print("sauve_position_dial")
+
+    def restore_position_dial(self):
+        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        pos = settings.value("position", type=QPoint)
+        size = settings.value("taille", type=QSize)
+        if pos is None:
+            return
+        screens = QApplication.screens()
+        multi = len(screens) > 1
+        # Vérifie si la position est sur un des écrans
+        on_screen = any(screen.geometry().contains(pos) for screen in screens)
+        if on_screen:
+            self.dlg.move(pos)
+            if size:
+                self.dlg.resize(size)
+        else:
+            # Si un seul écran → replacer en haut-gauche
+            if not multi:
+                self.dlg.move(QPoint(0, 0))
+            else:
+                # Multi-écran mais position invalide → centrer sur écran principal
+                primary = QApplication.primaryScreen().geometry()
+                center = primary.center()
+                self.dlg.move(center - self.dlg.rect().center())
+
+    def fermeture_qgis(self):
+        self.sauve_position_dial()
+
+    def on_project_opened(self):
+        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        visible = settings.value("visible", False, type=bool)
+
+        if visible:
+            self.run()
+
+    def on_dialog_closed(self):
+        self.sauve_position_dial()
+        # déconnexion des signaux
+        try:
+            self.iface.mapCanvas().selectionChanged.disconnect(self.actualiserSelection)
+        except TypeError:
+            pass
+
+        try:
+            self.iface.currentLayerChanged.disconnect(self.actualiserSelection)
+        except TypeError:
+            pass
+
+        # si on quitte, on remet la vue sans le sens de numérisation via le plugin
+        try:
+            processing_plugin = plugins[PLUGIN_CHE_SENS_NUM]
+            processing_plugin.suppr_symb_sens_num(self.layer)
+        except:
+            pass
+
+        self.dlg = None
+
 
     def run(self):
         """Run method that performs all the real work"""
@@ -1159,7 +1224,8 @@ class ChangeAttributRoute:
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
 
         self.dlg = ChangeAttributRouteDialog()
-        self.dlg.setWindowTitle(f"{TITRE_INTERFACE}")
+        self.dlg.setWindowTitle(f"{TITRE}")
+        self.restore_position_dial()
 
         self.dlgAProposDe = Aproposde()
         self.dlgAProposDe.setWindowFlags(WindowStaysOnTopHint|WindowTitleHint | WindowCloseButtonHint)
@@ -1306,29 +1372,14 @@ class ChangeAttributRoute:
         self.dlg.pushButtonValiderTransaction.clicked.connect(self.validerLaTransaction)
         self.dlg.pushButtonValiderTransaction.setStyleSheet(CUSTOM_WIDGETS[4])
 
+        # connection de la fermeture du dialogue
+        self.dlg.finished.connect(self.on_dialog_closed)
+        # événement fermeture de qgis
+        QgsApplication.instance().aboutToQuit.connect(self.fermeture_qgis)
+
         self.actualiserSelection()
 
         # show the dialog
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
         self.dlg.show()
-
-        # Run the dialog event loop
-        result = self.dlg.exec()
-
-        if result == 0:
-            # on deconnecte le signal en quittant
-            try:
-                self.iface.mapCanvas().selectionChanged.disconnect(self.actualiserSelection)
-            except TypeError:
-                pass  # aucune connexion existante
-
-            # si on quitte, on remet la vue sans le sens de numérisation via le plugin
-            try:
-                processing_plugin = plugins[PLUGIN_CHE_SENS_NUM]
-                processing_plugin.suppr_symb_sens_num(self.layer)
-            except:
-                pass
-
-            self.layer.triggerRepaint()
-            self.dlgAProposDe.close()
