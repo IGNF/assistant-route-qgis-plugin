@@ -1,4 +1,4 @@
-from qgis.PyQt.QtCore import Qt,QT_VERSION_STR
+from qgis.PyQt.QtCore import Qt,QT_VERSION_STR,QSettings
 from qgis.PyQt.QtWidgets import QTextEdit,QMessageBox
 
 # Détection version Qt)
@@ -18,6 +18,9 @@ WindowTitleHint = Qt.WindowType.WindowTitleHint if QT6 else Qt.WindowTitleHint
 WindowStaysOnTopHint = Qt.WindowType.WindowStaysOnTopHint if QT6 else Qt.WindowStaysOnTopHint
 Yes = QMessageBox.StandardButton.Yes if QT6 else QMessageBox.Yes
 No = QMessageBox.StandardButton.No if QT6 else QMessageBox.No
+
+NativeFormat = QSettings.Format.NativeFormat if QT6 else QSettings.NativeFormat
+UserScope = QSettings.Scope.UserScope if QT6 else QSettings.UserScope
 
 # Alignment
 AlignCenter = Qt.AlignmentFlag.AlignCenter if QT6 else Qt.AlignCenter

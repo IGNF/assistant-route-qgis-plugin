@@ -21,10 +21,12 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication,QSize, QPoint
+from qgis.PyQt.QtCore import  QTranslator, QCoreApplication,QSize, QPoint
 from qgis.PyQt.QtWidgets import QPushButton,QLineEdit, QWidget,QApplication
 from qgis.core import Qgis,QgsApplication
+
 from qgis.utils import plugins
+
 
 # Import the code for the dialog
 from .assistant_route_dialog import ChangeAttributRouteDialog
@@ -1109,11 +1111,11 @@ class ChangeAttributRoute:
 
     def afficher_sens_num(self):
         try:
-            processing_plugin = plugins[PLUGIN_CHE_SENS_NUM]
+            processing_plugin = plugins[PLUGIN_SENS_NUM]
             processing_plugin.run()
         except KeyError:
             QMessageBox.warning(None, "Attention",
-                                f"Le plugin {PLUGIN_CHE_SENS_NUM} n'est pas installé ou pas activé\n"
+                                f"Le plugin {PLUGIN_SENS_NUM} n'est pas installé ou pas activé\n"
                                 f"- Veuillez l'activer dans le menu \"Installer/Gérer les extensions de QGIS\"")
 
     def afficheAProposeDe(self):
@@ -1146,7 +1148,7 @@ class ChangeAttributRoute:
 
     def sauve_position_dial(self):
 
-        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope,
+        settings = QSettings(NativeFormat, UserScope,
                              "IGN", TITRE)
         settings.setValue("position", self.dlg.pos())
         settings.setValue("taille", self.dlg.size())
@@ -1154,7 +1156,7 @@ class ChangeAttributRoute:
         print("sauve_position_dial")
 
     def restore_position_dial(self):
-        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        settings = QSettings(NativeFormat,UserScope, "IGN", TITRE)
         pos = settings.value("position", type=QPoint)
         size = settings.value("taille", type=QSize)
         if pos is None:
@@ -1181,7 +1183,7 @@ class ChangeAttributRoute:
         self.sauve_position_dial()
 
     def on_project_opened(self):
-        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
         visible = settings.value("visible", False, type=bool)
 
         if visible:
@@ -1202,11 +1204,10 @@ class ChangeAttributRoute:
 
         # si on quitte, on remet la vue sans le sens de numérisation via le plugin
         try:
-            processing_plugin = plugins[PLUGIN_CHE_SENS_NUM]
+            processing_plugin = plugins[PLUGIN_SENS_NUM]
             processing_plugin.suppr_symb_sens_num(self.layer)
         except:
             pass
-
         self.dlg = None
 
 

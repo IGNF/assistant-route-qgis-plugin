@@ -3,8 +3,8 @@ LAYER_ROUTE = "troncon_de_route"
 TITRE = "Contribution directe BDUni (ROUTE)"
 
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
-PLUGIN_CHE_PLUS_COURT = "IGN_chemin_le_plus_court"
-PLUGIN_CHE_SENS_NUM = "IGN_sens_numerisation"
+PLUGIN_CHE_PLUS_COURT = "IGN_ShortestPath"
+PLUGIN_SENS_NUM = "IGN_sens_numerisation"
 
 # champs
 IDENTIFIANT = "id"

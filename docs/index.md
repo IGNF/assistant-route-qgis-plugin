@@ -51,11 +51,11 @@ alt="logo_IGN_pour_lettre" /></td>
 Version de QGIS : 3.28 ou supérieur.  
 Y compris QGIS4
 
-Le plugin « maitre » doit préalablement être installé : 
-[maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
+Le plugin « PluginsManager » doit préalablement être installé : 
+[PluginsManager-qgis-plugin](https://github.com/IGNF/maitre-qgis-plugin/releases/download/version_finale/PluginsManager.zip)
 
 Les fonctionnalités Afficher le sens de numérisation et Chemin le plus
-court nécessitent l’installation des 2 plugins de même nom (à cocher
+court nécessitent l’installation de ces deux plugins (à cocher
 dans l’exécutable d’installation).
 
 Ce plugin fonctionne uniquement avec la couche éditable des routes de la
