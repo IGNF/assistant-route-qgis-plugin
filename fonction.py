@@ -48,7 +48,7 @@ def affiches_spec_bdtopo():
     webbrowser.open("https://bdtopoexplorer.ign.fr/")
 
 
-def afficheerreur(text, titre=TITRE_INTERFACE):
+def afficheerreur(text, titre=TITRE):
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Warning)
     msg.setWindowTitle(titre)

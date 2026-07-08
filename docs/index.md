@@ -10,7 +10,7 @@ style="width:1.38681in;height:1.47153in"
 alt="logo_IGN_pour_lettre" /></td>
 <td style="font-size: 24px;text-align: center;"><p><strong>Manuel utilisateur du plugin
 « IGN Contribution directe BDUni (ROUTE) »</strong></p>
-<p><strong>V1.7.0</strong></p></td>
+</td>
 </tr>
 <tr>
 <td style="font-size: 16px;text-align: center;">Développeur  : Gérôme PECHEUR (IGN)</td>
@@ -51,11 +51,11 @@ alt="logo_IGN_pour_lettre" /></td>
 Version de QGIS : 3.28 ou supérieur.  
 Y compris QGIS4
 
-Le plugin « maitre » doit préalablement être installé : 
-[maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
+Le plugin « PluginsManager » doit préalablement être installé : 
+[PluginsManager-qgis-plugin](https://github.com/IGNF/maitre-qgis-plugin/releases/download/version_finale/PluginsManager.zip)
 
 Les fonctionnalités Afficher le sens de numérisation et Chemin le plus
-court nécessitent l’installation des 2 plugins de même nom (à cocher
+court nécessitent l’installation de ces deux plugins (à cocher
 dans l’exécutable d’installation).
 
 Ce plugin fonctionne uniquement avec la couche éditable des routes de la
