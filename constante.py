@@ -4,7 +4,7 @@ TITRE = "Contribution directe BDUni (ROUTE)"
 
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
 PLUGIN_CHE_PLUS_COURT = "IGN_ShortestPath"
-PLUGIN_SENS_NUM = "IGN_sens_numerisation"
+PLUGIN_SENS_NUM = "IGN_DigitizingDirection"
 
 # champs
 IDENTIFIANT = "id"
