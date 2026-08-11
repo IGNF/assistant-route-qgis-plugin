@@ -2,20 +2,15 @@ import os.path
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import Qt
 
-from qgis.core import QgsCoordinateReferenceSystem, QgsProject
-
 import subprocess
 import webbrowser
-
 from .constante import *
-
 
 def ecrirelog(text):
     ficlog = open(os.path.dirname(__file__) + "/log.txt", "a")
     ficlog.write(text)
     ficlog.close()
     print("log !!")
-
 
 def ecrire_debut_fichier(text):
     fic = os.path.dirname(__file__) + "/log.txt"
@@ -30,7 +25,6 @@ def ecrire_debut_fichier(text):
         with open(os.path.dirname(__file__) + "/log.txt", 'w', encoding='utf-8') as file:
             file.write(text + text_origine)
 
-
 def afficheDoc():
     webbrowser.open("https://ignf.github.io/assistant-route-qgis-plugin/")
 
@@ -42,40 +36,36 @@ def afficherlog():
     else:
         subprocess.Popen(["start", "excel", fic], shell=True)
 
-
 def affiches_spec_bdtopo():
     import webbrowser
     webbrowser.open("https://bdtopoexplorer.ign.fr/")
 
-
 def afficheerreur(text, titre=TITRE):
     msg = QMessageBox()
-    msg.setIcon(QMessageBox.Warning)
+    msg.setIcon(QMessageBox.Icon.Warning)
     msg.setWindowTitle(titre)
-    msg.setStandardButtons(QMessageBox.Ok)
+    msg.setStandardButtons(QMessageBox.StandardButton.Ok)
     msg.setText(text)
-    msg.setWindowFlags(Qt.WindowStaysOnTopHint)
+    msg.setWindowFlags(Qt.WindowType.Dialog)
     msg.exec()
-
 
 def affichemessageAvertissement(text, titre):
     msg = QMessageBox()
-    msg.setIcon(QMessageBox.Warning)
+    msg.setIcon(QMessageBox.Icon.Warning)
 
     msg.setWindowTitle(titre)
     msg.setText(text)
-    btnAnnuler = msg.addButton("Annuler", QMessageBox.YesRole)
+    btnAnnuler = msg.addButton("Annuler", QMessageBox.ButtonRole.YesRole)
     btnAnnuler.setStyleSheet("color:red ; font-weight: bold")
-    btnValider = msg.addButton("valider les modifications", QMessageBox.AcceptRole)
+    btnValider = msg.addButton("valider les modifications", QMessageBox.ButtonRole.AcceptRole)
     btnValider.setStyleSheet("color:green ; font-weight: bold")
-    msg.setWindowFlags(Qt.WindowStaysOnTopHint)
+    msg.setWindowFlags(Qt.WindowType.Dialog)
     msg.exec()
 
     if msg.clickedButton() == btnAnnuler:
         return False
     if msg.clickedButton() == btnValider:
         return True
-
 
 def list_submenus(menu):
     # Liste pour stocker les sous-menus

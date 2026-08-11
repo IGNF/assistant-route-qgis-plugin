@@ -9,7 +9,7 @@
 style="width:1.38681in;height:1.47153in"
 alt="logo_IGN_pour_lettre" /></td>
 <td style="font-size: 24px;text-align: center;"><p><strong>Manuel utilisateur du plugin
-« IGN Contribution directe BDUni (ROUTE) »</strong></p>
+« IGN Assistant route »</strong></p>
 </td>
 </tr>
 <tr>
@@ -48,15 +48,12 @@ alt="logo_IGN_pour_lettre" /></td>
   <h2 id="prerequis" style="color: white;margin:0;" >1. Prérequis</h2>
 </div>
 
-Version de QGIS : 3.28 ou supérieur.  
-Y compris QGIS4
+Version de QGIS : 3.34 ou supérieur, y compris QGIS4
 
-Le plugin « PluginsManager » doit préalablement être installé : 
-[PluginsManager-qgis-plugin](https://github.com/IGNF/maitre-qgis-plugin/releases/download/version_finale/PluginsManager.zip)
+Le plugin «IGN PluginsManager» doit préalablement être installé, il est disponible dans le dépôt officiel.
 
-Les fonctionnalités Afficher le sens de numérisation et Chemin le plus
-court nécessitent l’installation de ces deux plugins (à cocher
-dans l’exécutable d’installation).
+Les fonctionnalités : Afficher le sens de numérisation et Chemin le plus
+court nécessitent l’installation de ces deux plugins (installation via IGN PluginsManager).
 
 Ce plugin fonctionne uniquement avec la couche éditable des routes de la
 BDTopo nommée : « troncon_de_route ».
@@ -83,8 +80,7 @@ avoir accès à ces fonctionnalités.
   <h2 id="presentation" style="color: white;margin:0;" >4. Présentation</h2>
 </div>
 
-<img src="images/image2.png"
-style="width:4.40137in;height:1.64917in" />
+<img src="images/image2.png" style="width:4.40137in;height:1.64917in" />
 
 Cette interface permet de modifier certains attributs des tronçons de
 routes
@@ -95,30 +91,25 @@ la documentation du plugin.
 Le bouton « **Réinitialiser les attributs de la sélection** » permet
 d’annuler les modifications en cours.
 
-Le bouton <img src="images/image3.PNG"
-style="width:0.70833in;height:0.28449in" /> Permet de modifier la
+Le bouton <img src="images/image3.png" style="width:0.70833in;height:0.28449in" /> Permet de modifier la
 couleur des tronçons sélectionnés dans QGIS. Ça peut être utile suivant
 la symbologie appliquées pour les tronçons dans QGIS.
 
-Le bouton <img src="images/image4.png"
-style="width:1.17708in;height:0.34375in" /> permet de visualiser le sens
+Le bouton <img src="images/image4.png" style="width:1.17708in;height:0.34375in" /> permet de visualiser le sens
 de numérisation des tronçons de route pour faciliter le choix du Sens de
 circulation.
 
-Le bouton <img src="images/image5.png"
-style="width:0.35417in;height:0.35417in" /> recentre l’écran sur les
+Le bouton <img src="images/image5.png" style="width:0.35417in;height:0.35417in" /> recentre l’écran sur les
 tronçons sélectionnés.
 
-Le bouton <img src="images/image6.png"
-style="width:0.36458in;height:0.36458in" /> sélectionne tous les
+Le bouton <img src="images/image6.png" style="width:0.36458in;height:0.36458in" /> sélectionne tous les
 tronçons de route entre les 2 tronçons sélectionnés en respectant
 l’itinéraire le plus court entre les 2.
 
 Le bouton « **Valider les modifications** » valide les choix et
 enregistre les modifications dans la couche.
 
-<img src="images/image7.png"
-style="width:1.69815in;height:0.23962in" />
+<img src="images/image7.png" style="width:1.69815in;height:0.23962in" />
 
 A l’ouverture de l’outil il y a une vérification de la présence dans le
 projet des couches nécessaires. Afficher l’état du modèle permet de
@@ -143,8 +134,7 @@ style="width:1.20518in;height:1.84368in" />
 - Sélection unique, on ne sélectionne qu’un seul tronçon avec l’outil de
   sélection de QGIS
 
-<img src="images/image9.png"
-style="width:4.18785in;height:1.60701in" />
+<img src="images/image9.png" style="width:4.18785in;height:1.60701in" />
 
 Les valeurs des attributs du tronçon sélectionné s’affichent en vert
 dans l’interface.
@@ -166,8 +156,7 @@ dans l’interface.
   contrôle visuel est toutefois nécessaire afin de vérifier si la
   sélection faite est celle attendue.
 
-<img src="images/image10.png"
-style="width:3.92762in;height:1.50716in" />
+<img src="images/image10.png" style="width:3.92762in;height:1.50716in" />
 
 Seuls les attributs communs à tous les tronçons sont représentés en
 vert.
@@ -179,8 +168,7 @@ vert.
 Une fois les tronçons sélectionnés il suffit de cliquer sur les
 nouvelles valeurs choisies.
 
-<img src="images/image11.png"
-style="width:3.34104in;height:1.28207in" />
+<img src="images/image11.png" style="width:3.34104in;height:1.28207in" />
 
 **Les valeurs non autorisées apparaissent en grisé** et ne sont pas
 sélectionnables.
@@ -192,13 +180,11 @@ Si on modifie la nature, l’outil propose des valeurs compatibles avec la
 nouvelle nature pour les autres attributs.
 
 Les modifications sur le(s) tronçon(s) sélectionné(s) sont à valider
-avec le bouton <img src="images/image13.png"
-style="width:1.78125in;height:0.32292in" />
+avec le bouton <img src="images/image13.png" style="width:1.78125in;height:0.32292in" />
 
 Un message QGIS confirme la prise en compte des modifications.
 
-<img src="images/image14.png"
-style="width:4.72917in;height:0.35417in" />
+<img src="images/image14.png" style="width:4.72917in;height:0.35417in" />
 
 
 
@@ -212,11 +198,9 @@ style="width:4.72917in;height:0.35417in" />
   <h2 id="a_propos" style="color: white;margin:0;" >7.1. A propos</h2>
 </div>
 
-Accessible via <img src="images/image15.PNG"
-style="width:0.23962in;height:0.25003in" />.
+Accessible via <img src="images/image15.png" style="width:0.23962in;height:0.25003in" />.
 
 Cette boite permet de suivre l’historique des différentes versions ainsi
 que d’afficher cette documentation.
 
-<img src="images/image16.png"
-style="width:2.35763in;height:3.44022in" />
+<img src="images/image16.png" style="width:2.35763in;height:3.44022in" />

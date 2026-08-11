@@ -6,8 +6,8 @@
 name=IGN Assistant route
 qgisMinimumVersion=3.34
 qgisMaximumVersion=4.99
-description=Aide à la contribution directe sur le thème routier
-version=1.7.1
+description=This plugin helps users edit the attributes of BDTopo road segments while applying semantic consistency checks to all changes.
+version=1.8.0
 author=Gérôme PECHEUR (IGN)
 email=gerome.pecheur@ign.fr
 license=GNU AGPL v3
