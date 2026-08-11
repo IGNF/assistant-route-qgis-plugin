@@ -1,6 +1,6 @@
 LAYER_ROUTE = "troncon_de_route"
 
-TITRE = "Contribution directe BDUni (ROUTE)"
+TITRE = "IGN Assistant route"
 
 PLUGIN_ESPACE_CO = "ign_espace_collaboratif"
 PLUGIN_CHE_PLUS_COURT = "IGN_ShortestPath"
