@@ -980,7 +980,7 @@ class ChangeAttributRoute:
             return True
 
     def afficheMessageBar(self, message):
-        self.iface.messageBar().pushMessage("Info", message, level=Qgis.Info, duration=5)
+        self.iface.messageBar().pushMessage("Info", message, level=Qgis.MessageLevel.Info, duration=5)
 
     def colorchange(self):
         self.actualiserSelection()
@@ -1210,7 +1210,7 @@ class ChangeAttributRoute:
         try:
             processing_plugin = plugins[PLUGIN_SENS_NUM]
             processing_plugin.suppr_symb_sens_num(self.layer)
-        except:
+        except (KeyError, AttributeError):
             pass
         self.dlg = None
 
