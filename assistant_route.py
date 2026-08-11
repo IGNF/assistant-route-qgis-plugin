@@ -21,9 +21,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import  QTranslator, QCoreApplication,QSize, QPoint
+from qgis.PyQt.QtGui import QRegularExpressionValidator,QValidator
+from qgis.PyQt.QtCore import  QTranslator, QCoreApplication,QSize, QPoint,QSettings,QRegularExpression
 from qgis.PyQt.QtWidgets import QPushButton,QLineEdit, QWidget,QApplication
-from qgis.core import Qgis,QgsApplication
+from qgis.core import Qgis,QgsApplication,QgsProject
 
 from qgis.utils import plugins
 
@@ -53,8 +54,8 @@ class ChangeAttributRoute:
     def keep_largeur_chaussee(self):
         # affiche un dialogue oui / non pour conserver ou nom la largeur de chaussée.
         reply = QMessageBox.question(self.iface.mainWindow(),"Largeur","Voulez-vous conserver la largeur de chaussée ?",
-            Yes | No,No)
-        if reply == Yes:
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
             return True
         else:
             return False
@@ -1079,16 +1080,19 @@ class ChangeAttributRoute:
 
     # test si le format des données est valide
     def is_valid_regex(self,widget,regex):
-        if QT6:
-            rx = QRegularExpression(regex)
-            validator = QRegularExpressionValidator(rx, widget)
-        else:
-            rx = QRegExp(regex)
-            validator = QRegExpValidator(rx, widget)
+        # if QT6:
+        #     rx = QRegularExpression(regex)
+        #     validator = QRegularExpressionValidator(rx, widget)
+        # else:
+        #     rx = QRegExp(regex)
+        #     validator = QRegExpValidator(rx, widget)
+        rx = QRegularExpression(regex)
+        validator = QRegularExpressionValidator(rx, widget)
+
         widget.setValidator(validator)
         # Validation du texte actuel dans le widget
         state, _, _ = validator.validate(widget.text(), 0)
-        return state == Acceptable
+        return state == QValidator.State.Acceptable
 
     def click_edit(self,widget,champs,event):
         widget.clear()
@@ -1148,7 +1152,7 @@ class ChangeAttributRoute:
 
     def sauve_position_dial(self):
 
-        settings = QSettings(NativeFormat, UserScope,
+        settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope,
                              "IGN", TITRE)
         settings.setValue("position", self.dlg.pos())
         settings.setValue("taille", self.dlg.size())
@@ -1156,7 +1160,7 @@ class ChangeAttributRoute:
         print("sauve_position_dial")
 
     def restore_position_dial(self):
-        settings = QSettings(NativeFormat,UserScope, "IGN", TITRE)
+        settings = QSettings(QSettings.Format.NativeFormat,QSettings.Scope.UserScope, "IGN", TITRE)
         pos = settings.value("position", type=QPoint)
         size = settings.value("taille", type=QSize)
         if pos is None:
@@ -1183,7 +1187,7 @@ class ChangeAttributRoute:
         self.sauve_position_dial()
 
     def on_project_opened(self):
-        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
+        settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, "IGN", TITRE)
         visible = settings.value("visible", False, type=bool)
 
         if visible:
@@ -1229,7 +1233,7 @@ class ChangeAttributRoute:
         self.restore_position_dial()
 
         self.dlgAProposDe = Aproposde()
-        self.dlgAProposDe.setWindowFlags(WindowStaysOnTopHint|WindowTitleHint | WindowCloseButtonHint)
+        self.dlgAProposDe.setWindowFlags(Qt.WindowType.Dialog|Qt.WindowType.WindowTitleHint | Qt.WindowType.WindowCloseButtonHint)
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(afficheDoc)
 
 
@@ -1382,5 +1386,5 @@ class ChangeAttributRoute:
 
         # show the dialog
         self.dlg.setParent(self.iface.mainWindow())
-        self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
+        self.dlg.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.WindowTitleHint | Qt.WindowType.WindowCloseButtonHint)
         self.dlg.show()
