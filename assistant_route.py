@@ -1146,11 +1146,15 @@ class ChangeAttributRoute:
 
     def initGui(self):
         self.iface.projectRead.connect(self.on_project_opened)
+        # événement fermeture de qgis
+        QgsApplication.instance().aboutToQuit.connect(self.fermeture_qgis)
 
     def unload(self):
-        pass
+        QgsApplication.instance().aboutToQuit.disconnect(self.fermeture_qgis)
 
     def sauve_position_dial(self):
+        if self.dlg is None:
+            return
 
         settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope,
                              "IGN", TITRE)
@@ -1160,10 +1164,10 @@ class ChangeAttributRoute:
         print("sauve_position_dial")
 
     def restore_position_dial(self):
-        settings = QSettings(QSettings.Format.NativeFormat,QSettings.Scope.UserScope, "IGN", TITRE)
+        settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, "IGN", TITRE)
         pos = settings.value("position", type=QPoint)
         size = settings.value("taille", type=QSize)
-        if pos is None:
+        if not pos:
             return
         screens = QApplication.screens()
         multi = len(screens) > 1
@@ -1230,7 +1234,6 @@ class ChangeAttributRoute:
 
         self.dlg = ChangeAttributRouteDialog()
         self.dlg.setWindowTitle(f"{TITRE}")
-        self.restore_position_dial()
 
         self.dlgAProposDe = Aproposde()
         self.dlgAProposDe.setWindowFlags(Qt.WindowType.Dialog|Qt.WindowType.WindowTitleHint | Qt.WindowType.WindowCloseButtonHint)
@@ -1379,12 +1382,11 @@ class ChangeAttributRoute:
 
         # connection de la fermeture du dialogue
         self.dlg.finished.connect(self.on_dialog_closed)
-        # événement fermeture de qgis
-        QgsApplication.instance().aboutToQuit.connect(self.fermeture_qgis)
 
         self.actualiserSelection()
 
         # show the dialog
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.WindowTitleHint | Qt.WindowType.WindowCloseButtonHint)
+        self.restore_position_dial()
         self.dlg.show()
